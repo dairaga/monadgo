@@ -23,7 +23,7 @@ func ExampleSliceOf() {
 	// 5
 	// 5
 	// [1 2 3 4 5 6]
-	// [1 2 3 4 5 6], [6]int
+	// [1 2 3 4 5 6], []int
 	// 6
 	// 6
 }
@@ -145,4 +145,108 @@ func ExampleSlice_ToSeq() {
 	// [(1,11) (2,22) (1,111) (2,222)], []monadgo.Pair
 	// [(1,11) (2,22) (1,111) (2,222)]
 	// [(1,11) (2,22) (1,111) (2,222)], []monadgo.Pair
+}
+
+func ExampleSlice_Tail() {
+	s := SliceOf([]int{1, 2, 3, 4, 5}).Tail()
+
+	printGet(s)
+	printGet(s.Get())
+
+	s = SliceOf([5]int{1, 2, 3, 4, 5}).Tail()
+
+	printGet(s)
+	printGet(s.Get())
+
+	// Output:
+	// [2 3 4 5], monadgo._slice
+	// [2 3 4 5], []int
+	// [2 3 4 5], monadgo._slice
+	// [2 3 4 5], []int
+
+}
+
+func ExampleSlice_Reduce() {
+	sum := SliceOf([]int{1, 2, 3, 4, 5}).Reduce(func(x1, x2 int) int {
+		return x1 + x2
+	})
+	fmt.Println(sum)
+
+	sum = SliceOf([5]int{1, 2, 3, 4, 5}).Reduce(func(x1, x2 int) int {
+		return x1 * x2
+	})
+
+	fmt.Println(sum)
+
+	// Output:
+	// 15
+	// 120
+}
+
+func ExampleSlice_Scan() {
+	s := SliceOf([]int{1, 2, 3, 4, 5}).Scan(10, func(a, b int) int {
+		return a * b
+	})
+
+	printGet(s)
+	printGet(s.Get())
+
+	// Output:
+	// [10 10 20 60 240 1200], monadgo._slice
+	// [10 10 20 60 240 1200], []int
+}
+
+func ExampleSlice_GroupBy() {
+	m := SliceOf([]int{1, 2, 3, 4, 5}).GroupBy(func(x int) int {
+		return x % 2
+	}).Get().(map[int][]int)
+
+	for k, v := range m {
+		printGet(k)
+		printGet(v)
+	}
+
+	// Unordered Output:
+	// 1, int
+	// [1 3 5], []int
+	// 0, int
+	// [2 4], []int
+}
+
+func ExampleSlice_Take() {
+	s := SliceOf([]int{1, 2, 3, 4, 5}).Take(3)
+	printGet(s)
+	printGet(s.Get())
+
+	// Output:
+	// [1 2 3], monadgo._slice
+	// [1 2 3], []int
+}
+
+func ExampleSlice_TakeWhile() {
+	s := SliceOf([]int{1, 2, 3, 4, 5}).TakeWhile(func(x int) bool {
+		return x <= 3
+	})
+	printGet(s)
+	printGet(s.Get())
+
+	s = SliceOf([]int{1, 2, 3, 4, 5}).TakeWhile(func(x int) bool {
+		return x > 0
+	})
+	printGet(s)
+	printGet(s.Get())
+
+	s = SliceOf([]int{1, 2, 3, 4, 5}).TakeWhile(func(x int) bool {
+		return x > 10
+	})
+	printGet(s)
+	printGet(s.Get())
+
+	// Output:
+	// [1 2 3], monadgo._slice
+	// [1 2 3], []int
+	// [1 2 3 4 5], monadgo._slice
+	// [1 2 3 4 5], []int
+	// [], monadgo._slice
+	// [], []int
 }

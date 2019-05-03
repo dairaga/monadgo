@@ -84,6 +84,12 @@ func mergeSlice(x, y reflect.Value) reflect.Value {
 	return reflect.Append(x, y)
 }
 
+func oneToSlice(v reflect.Value) reflect.Value {
+	s := makeSlice(v.Type(), 1, 1)
+	s.Index(0).Set(v)
+	return s
+}
+
 // mergeMap returns a reflect.Value of go map that x merges y.
 func mergeMap(x, y reflect.Value) reflect.Value {
 	if !x.IsValid() {
