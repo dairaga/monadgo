@@ -195,24 +195,24 @@ func ExampleTry_Forall() {
 	// true, bool
 }
 
-func ExampleTry_ToSeq() {
-	v := TryOf(false).ToSeq()
-	printGet(v)
+func ExampleTry_ToSlice() {
+	v := TryOf(false).ToSlice()
+	printGet(v.Get())
 
-	v = TryOf(fmt.Errorf("error")).ToSeq()
-	printGet(v)
+	v = TryOf(fmt.Errorf("error")).ToSlice()
+	printGet(v.Get())
 
-	v = TryOf(true).ToSeq()
-	printGet(v)
+	v = TryOf(true).ToSlice()
+	printGet(v.Get())
 
-	v = TryOf(nil).ToSeq()
-	printGet(v)
+	v = TryOf(nil).ToSlice()
+	printGet(v.Get())
 
-	v = Try1Of("ABC", true).ToSeq()
-	printGet(v)
+	v = Try1Of("ABC", true).ToSlice()
+	printGet(v.Get())
 
-	v = Try2Of("ABC", 100, true).ToSeq()
-	printGet(v)
+	v = Try2Of("ABC", 100, true).ToSlice()
+	printGet(v.Get())
 
 	// Output:
 	// [false], []bool

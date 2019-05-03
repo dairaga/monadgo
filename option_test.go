@@ -134,19 +134,19 @@ func ExampleOption_Fold() {
 	// 1000, int
 }
 
-func ExampleOption_ToSeq() {
-	v := OptionOf(nil).ToSeq()
-	printGet(v)
+func ExampleOption_ToSlice() {
+	v := OptionOf(nil).ToSlice()
+	printGet(v.Get())
 	fmt.Println(v == nil)
-	fmt.Println(len(v.([]*_null)))
+	fmt.Println(len(v.Get().([]*_null)))
 
-	v = OptionOf(1000).ToSeq()
-	printGet(v)
+	v = OptionOf(1000).ToSlice()
+	printGet(v.Get())
 	fmt.Println(v == nil)
-	fmt.Println(len(v.([]int)))
+	fmt.Println(len(v.Get().([]int)))
 
-	v = None.ToSeq()
-	printGet(v)
+	v = None.ToSlice()
+	printGet(v.Get())
 
 	// Output:
 	// [null], []*monadgo._null

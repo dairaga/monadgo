@@ -96,11 +96,20 @@ func ExampleSlice_Map() {
 	fmt.Println(s2)
 	fmt.Printf("%v, %T\n", s2.Get(), s2.Get())
 
+	s2 = s1.Map(func(k, v int) (string, int) {
+		return fmt.Sprintf("%d", k+v), k * v
+	})
+
+	fmt.Println(s2)
+	fmt.Printf("%v, %T\n", s2.Get(), s2.Get())
+
 	// Output:
 	// [(1,11) (2,22) (1,111) (2,222)]
 	// [(1,11) (2,22) (1,111) (2,222)], []monadgo.Pair
 	// [(1,11) (2,22) (1,111) (2,222)]
 	// [(1,11) (2,22) (1,111) (2,222)], []string
+	// [(12,11) (24,44) (112,111) (224,444)]
+	// [(12,11) (24,44) (112,111) (224,444)], []monadgo._pair
 }
 
 func ExampleSlice_FlatMap() {
@@ -131,14 +140,14 @@ func ExampleSlice_FlatMap() {
 	// [(1,11) (2,22) (1,111) (2,222)], []monadgo.Pair
 }
 
-func ExampleSlice_ToSeq() {
+func ExampleSlice_ToSlice() {
 	s1 := SliceOf([]Pair{PairOf(1, 11), PairOf(2, 22), PairOf(1, 111), PairOf(2, 222)})
 	fmt.Println(s1)
-	fmt.Printf("%v, %T\n", s1.Get(), s1.Get())
+	printGet(s1.Get())
 
-	s2 := s1.ToSeq().([]Pair)
+	s2 := s1.ToSlice().Get().([]Pair)
 	fmt.Println(s2)
-	fmt.Printf("%v, %T\n", s2, s2)
+	printGet(s2)
 
 	// Output:
 	// [(1,11) (2,22) (1,111) (2,222)]

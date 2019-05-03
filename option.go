@@ -13,7 +13,7 @@ type Option interface {
 	Forall(f interface{}) bool
 	Foreach(f interface{})
 	Fold(z, f interface{}) interface{}
-	ToSeq() interface{}
+	ToSlice() Slice
 	// Traversable methods end
 
 	Defined() bool
@@ -69,8 +69,8 @@ func (n *_none) Fold(z, _ interface{}) interface{} {
 	return z
 }
 
-func (n *_none) ToSeq() interface{} {
-	return []Nothing{nothing}
+func (n *_none) ToSlice() Slice {
+	return SliceOf([]Nothing{nothing})
 }
 
 func (n *_none) GetOrElse(z interface{}) interface{} {
@@ -126,10 +126,8 @@ func (s _some) Fold(_, f interface{}) interface{} {
 	return fw.invoke(s.Get())
 }
 
-func (s _some) ToSeq() interface{} {
-	seq := makeSlice(reflect.TypeOf(s.Get()), 1)
-	seq.Index(0).Set(reflect.ValueOf(s.Get()))
-	return seq.Interface()
+func (s _some) ToSlice() Slice {
+	return newSlice(oneToSlice(reflect.ValueOf(s.Get())))
 }
 
 func (s _some) GetOrElse(interface{}) interface{} {

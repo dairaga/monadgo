@@ -9,6 +9,8 @@ import (
 type Traversable interface {
 	Any
 
+	Size() int
+
 	Head() interface{}
 
 	Tail() Traversable
@@ -38,7 +40,8 @@ type Traversable interface {
 	TakeWhile(f interface{}) Traversable
 
 	// ToSeq converts to slice.
-	ToSeq() interface{}
+	ToSlice() Slice
+	ToMap() Map
 }
 
 // TraversableOf returns a Traversable.

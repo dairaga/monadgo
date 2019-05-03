@@ -122,7 +122,7 @@ func ExampleMergeMap() {
 	printGet(z)
 
 	// Output:
-	// (1,2), monadgo._pair
+	// map[1:2], map[int]int
 	// map[1:2 3:4], map[int]int
 	// map[1:11 2:22], map[int]int
 	// map[1:11 2:22 3:33 4:44], map[int]int

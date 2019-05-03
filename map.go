@@ -8,7 +8,7 @@ import (
 // Map respresents a scala-like Map.
 type Map interface {
 	//Any
-	Size() int
+	//Size() int
 	Range() *PairIter
 	//Map(f interface{}) Traversable
 	//FlatMap(f interface{}) Traversable
@@ -39,79 +39,35 @@ func (m _map) Range() *PairIter {
 }
 
 func (m _map) Map(f interface{}) Traversable {
-	ftyp := reflect.TypeOf(f)
-	isMap := ftyp.NumOut() == 2 || (ftyp.NumOut() == 1 && ftyp.Out(0).Implements(typePair))
-	var ret reflect.Value
-
-	fw := funcOf(f)
-
-	it := m.Range()
-	for it.Next() {
-		result := fw.call(reflect.ValueOf(it.Pair()))
-		if isMap {
-			ret = mergeMap(ret, result)
-		} else {
-			ret = appendSlice(ret, result)
-		}
+	seq := m.ToSlice().Map(f)
+	if m := seq.ToMap(); m != nil {
+		return m
 	}
-
-	return TraversableOf(ret)
+	return seq
 }
 
 func (m _map) FlatMap(f interface{}) Traversable {
-	fout := reflect.TypeOf(f).Out(0)
-	var ret reflect.Value
-	fw := funcOf(f)
-
-	it := m.Range()
-	for it.Next() {
-		result := fw.call(reflect.ValueOf(it.Pair()))
-		if fout.Kind() == reflect.Map {
-			ret = mergeMap(ret, result)
-		} else if fout.Kind() == reflect.Slice && fout.Elem().Implements(typePair) {
-			len := result.Len()
-			for i := 0; i < len; i++ {
-				ret = mergeMap(ret, result.Index(i))
-			}
-		} else {
-			ret = mergeSlice(ret, result)
-		}
+	seq := m.ToSlice().FlatMap(f)
+	if m := seq.ToMap(); m != nil {
+		return m
 	}
 
-	return TraversableOf(ret)
+	return seq
 }
 
 func (m _map) Fold(z interface{}, f interface{}) interface{} {
-	it := m.Range()
-	fw := foldOf(f)
-
-	for it.Next() {
-		z = fw.fold(z, it.Pair())
-	}
-
-	return z
+	return m.ToSlice().Fold(z, f)
 }
 
 func (m _map) Foreach(f interface{}) {
-	it := m.Range()
-	fw := funcOf(f)
-	for it.Next() {
-		fw.invoke(it.Pair())
-	}
+	m.ToSlice().Foreach(f)
 }
 
 func (m _map) Forall(f interface{}) bool {
-	it := m.Range()
-	fw := funcOf(f)
-	for it.Next() {
-		if !fw.invoke(it.Pair()).(bool) {
-			return false
-		}
-	}
-	return true
+	return m.ToSlice().Forall(f)
 }
 
-func (m _map) ToSeq() interface{} {
+func (m _map) ToSlice() Slice {
 	size := m.Size()
 	ret := make([]Pair, 0, size)
 
@@ -121,7 +77,64 @@ func (m _map) ToSeq() interface{} {
 		ret = append(ret, it.Pair())
 	}
 
-	return ret
+	return SliceOf(ret)
+}
+
+func (m _map) ToMap() Map {
+	return m
+}
+
+func (m _map) Head() interface{} {
+	it := m.Range()
+	if it.Next() {
+		return it.Pair()
+	}
+	return nil
+}
+
+func (m _map) Tail() Traversable {
+	return m.ToSlice().Tail().ToMap()
+}
+
+func (m _map) Reduce(f interface{}) interface{} {
+	return m.ToSlice().Reduce(f)
+}
+
+func (m _map) Scan(z, f interface{}) Traversable {
+	return m.ToSlice().Scan(z, f).ToMap()
+}
+
+func (m _map) GroupBy(f interface{}) Map {
+	len := m.Size()
+	if len <= 0 {
+		panic("can not group by on empty map")
+	}
+
+	mval := reflect.Value(m)
+	ftyp := reflect.TypeOf(f)
+	elm := mval.Type()
+	fw := funcOf(f)
+	newm := makeMap(ftyp.Out(0), elm, -1)
+
+	it := m.Range()
+
+	for it.Next() {
+		p := it.Pair()
+		k := reflect.ValueOf(fw.invoke(p))
+
+		newm.SetMapIndex(k, mergeMap(newm.MapIndex(k), reflect.ValueOf(p)))
+	}
+
+	return newMap(newm)
+}
+
+// Take returns the first n elements in map.
+func (m _map) Take(n int) Traversable {
+	return m.ToSlice().Take(n).ToMap()
+}
+
+func (m _map) TakeWhile(f interface{}) Traversable {
+	return m.ToSlice().TakeWhile(f).ToMap()
 }
 
 // ----------------------------------------------------------------------------

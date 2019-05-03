@@ -163,11 +163,11 @@ func ExampleMap_FlatMap() {
 	// map[a:1 aa:2 aaa:3 b:2 bb:4 bbb:6], map[string]int
 }
 
-func ExampleMap_ToSeq() {
+func ExampleMap_ToSlice() {
 	s := MapOf(map[string][]int{
 		"a": []int{11, 111},
 		"b": []int{22, 222},
-	}).ToSeq().([]Pair)
+	}).ToSlice().Get().([]Pair)
 
 	for _, x := range s {
 		printGet(x)
@@ -196,9 +196,47 @@ func ExampleMap_Fold() {
 		fmt.Println(x)
 	}
 
+	x := MapOf(map[int]int{
+		1: 11,
+		2: 22,
+		3: 33,
+		4: 44,
+	}).Fold(PairOf(10, 100), func(p Pair, k, v int) Pair {
+		return PairOf(p.Key().(int)+k, p.Value().(int)+v)
+	})
+	printGet(x)
+
 	// Unordered Output:
 	// (2,12)
 	// (3,23)
 	// (4,34)
 	// (5,45)
+	// (20,210), monadgo._pair
+}
+
+func ExampleMap_GroupBy() {
+	m := MapOf(map[int]int{
+		1: 11,
+		2: 22,
+		3: 33,
+		4: 44,
+	}).GroupBy(func(_, v int) string {
+		return fmt.Sprintf("%d", v%2)
+	}).Get().(map[string]map[int]int)
+
+	for k1, v1 := range m {
+		fmt.Println(k1)
+
+		for k2, v2 := range v1 {
+			fmt.Println(k2, v2)
+		}
+	}
+
+	// Unordered Output:
+	// 0
+	// 2 22
+	// 4 44
+	// 1
+	// 1 11
+	// 3 33
 }

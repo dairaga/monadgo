@@ -13,7 +13,7 @@ type Try interface {
 	Forall(f interface{}) bool
 	Foreach(f interface{})
 	Fold(z, f interface{}) interface{}
-	ToSeq() interface{}
+	ToSlice() Slice
 	// Traversable methods end
 
 	OK() bool
@@ -80,12 +80,12 @@ func (f _failure) Fold(z, _ interface{}) interface{} {
 	return zw.invoke(f.Get())
 }
 
-func (f _failure) ToSeq() interface{} {
+func (f _failure) ToSlice() Slice {
 	switch v := f.f.(type) {
 	case error:
-		return []error{v}
+		return SliceOf([]error{v})
 	case bool:
-		return []bool{v}
+		return SliceOf([]bool{v})
 	default:
 		return nil
 	}
@@ -171,10 +171,8 @@ func (s _success) Fold(z, f interface{}) interface{} {
 	return TryOf(x).Fold(z, nil)
 }
 
-func (s _success) ToSeq() interface{} {
-	seq := makeSlice(reflect.TypeOf(s.Get()), 1)
-	seq.Index(0).Set(reflect.ValueOf(s.Get()))
-	return seq.Interface()
+func (s _success) ToSlice() Slice {
+	return newSlice(oneToSlice(reflect.ValueOf(s.Get())))
 }
 
 func (s _success) GetOrElse(interface{}) interface{} {

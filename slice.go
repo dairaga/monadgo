@@ -35,6 +35,10 @@ func (s _slice) Len() int {
 	return reflect.Value(s).Len()
 }
 
+func (s _slice) Size() int {
+	return s.Len()
+}
+
 func (s _slice) Cap() int {
 	return reflect.Value(s).Cap()
 }
@@ -55,13 +59,13 @@ func (s _slice) Tail() Traversable {
 func (s _slice) Map(f interface{}) Traversable {
 	sval := reflect.Value(s)
 	len := sval.Len()
-
-	ret := makeSlice(reflect.TypeOf(f).Out(0), len)
 	fw := funcOf(f)
+
+	var ret reflect.Value
 
 	for i := 0; i < len; i++ {
 		result := fw.call(sval.Index(i))
-		ret.Index(i).Set(result)
+		ret = appendSlice(ret, result)
 	}
 
 	return newSlice(ret)
@@ -75,7 +79,7 @@ func (s _slice) FlatMap(f interface{}) Traversable {
 	fw := funcOf(f)
 	for i := 0; i < len; i++ {
 		seq := TraversableOf(fw.call(sval.Index(i)))
-		ret = mergeSlice(ret, reflect.ValueOf(seq.ToSeq()))
+		ret = mergeSlice(ret, reflect.ValueOf(seq.ToSlice().Get()))
 	}
 
 	return newSlice(ret)
@@ -131,8 +135,24 @@ func (s _slice) Foreach(f interface{}) {
 	}
 }
 
-func (s _slice) ToSeq() interface{} {
-	return s.Get()
+func (s _slice) ToSlice() Slice {
+	return s
+}
+
+func (s _slice) ToMap() Map {
+	sval := reflect.Value(s)
+	if !sval.Type().Elem().Implements(typeTuple2) {
+		return nil
+	}
+
+	var ret reflect.Value
+
+	len := s.Len()
+	for i := 0; i < len; i++ {
+		ret = mergeMap(ret, sval.Index(i))
+	}
+
+	return newMap(ret)
 }
 
 func (s _slice) Scan(z, f interface{}) Traversable {

@@ -70,11 +70,7 @@ func mergeSlice(x, y reflect.Value) reflect.Value {
 	}
 
 	if x.Kind() != reflect.Slice {
-		s := makeSlice(x.Type(), 1)
-		s.Index(0).Set(x)
-		x = s
-		//s.Index(1).Set(y)
-		//return s
+		x = oneToSlice(x)
 	}
 
 	if y.Kind() == reflect.Slice {
@@ -93,14 +89,11 @@ func oneToSlice(v reflect.Value) reflect.Value {
 // mergeMap returns a reflect.Value of go map that x merges y.
 func mergeMap(x, y reflect.Value) reflect.Value {
 	if !x.IsValid() {
-		return y
+		return oneToMap(y)
 	}
 
 	if x.Type().Implements(typePair) {
-		px := x.Interface().(Pair)
-		m := makeMap(reflect.TypeOf(px.Key()), reflect.TypeOf(px.Value()), 2)
-		m.SetMapIndex(reflect.ValueOf(px.Key()), reflect.ValueOf(px.Value()))
-		x = m
+		x = oneToMap(x)
 	}
 
 	if y.Type().Implements(typePair) {
@@ -114,6 +107,18 @@ func mergeMap(x, y reflect.Value) reflect.Value {
 	}
 
 	return x
+}
+
+func oneToMap(x reflect.Value) reflect.Value {
+	if x.Type().Implements(typePair) {
+		px := x.Interface().(Pair)
+		m := makeMap(reflect.TypeOf(px.Key()), reflect.TypeOf(px.Value()), 1)
+		m.SetMapIndex(reflect.ValueOf(px.Key()), reflect.ValueOf(px.Value()))
+		return m
+	} else if x.Kind() == reflect.Map {
+		return x
+	}
+	return reflect.Value{}
 }
 
 // mergeKeyValue returns a reflect.Value of go map that add k->v to m.
