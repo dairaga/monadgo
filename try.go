@@ -132,13 +132,7 @@ func (s _success) Failed() bool {
 }
 
 func (s _success) Map(f interface{}) Try {
-	fw := funcOf(f)
-	result := fw.invoke(s.Get())
-	if result == nil {
-		return _success(nullValue)
-	}
-
-	return _success(reflect.ValueOf(result))
+	return SuccessOf(funcOf(f).invoke(s.Get()))
 }
 
 func (s _success) FlatMap(f interface{}) Try {
