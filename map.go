@@ -10,8 +10,8 @@ type Map interface {
 	//Any
 	Size() int
 	Range() *PairIter
-	Map(f interface{}) Traversable
-	FlatMap(f interface{}) Traversable
+	//Map(f interface{}) Traversable
+	//FlatMap(f interface{}) Traversable
 
 	Traversable
 }

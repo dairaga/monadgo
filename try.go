@@ -7,8 +7,14 @@ import (
 
 // Try represents Scala Try
 type Try interface {
-	//Any
-	Traversable
+	Any
+
+	// Traversable methods start
+	Forall(f interface{}) bool
+	Foreach(f interface{})
+	Fold(z, f interface{}) interface{}
+	ToSeq() interface{}
+	// Traversable methods end
 
 	OK() bool
 	Failed() bool

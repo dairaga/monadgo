@@ -9,6 +9,10 @@ import (
 type Traversable interface {
 	Any
 
+	Map(f interface{}) Traversable
+
+	FlatMap(f interface{}) Traversable
+
 	// Forall tests whether a predicate holds for all elements.
 	Forall(f interface{}) bool
 
@@ -17,6 +21,17 @@ type Traversable interface {
 
 	// Fold folds the elements using specified associative binary operator.
 	Fold(z, f interface{}) interface{}
+
+	// Reduce reduces the elements of this iterable collection using the specified associative binary operator.
+	//Reduce(f interface{}) interface{}
+
+	//Scan(z, f interface{})
+
+	//GroupBy(f interface{})
+
+	//Take(n int)
+
+	//TakeWhile(f interface{})
 
 	// ToSeq converts to slice.
 	ToSeq() interface{}

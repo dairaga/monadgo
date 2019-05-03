@@ -13,8 +13,8 @@ type Slice interface {
 	Len() int
 	Cap() int
 
-	Map(f interface{}) Slice
-	FlatMap(f interface{}) Slice
+	//Map(f interface{}) Slice
+	//FlatMap(f interface{}) Slice
 }
 
 type _slice reflect.Value
@@ -39,7 +39,7 @@ func (s _slice) Cap() int {
 	return reflect.Value(s).Cap()
 }
 
-func (s _slice) Map(f interface{}) Slice {
+func (s _slice) Map(f interface{}) Traversable {
 	sval := reflect.Value(s)
 	len := sval.Len()
 
@@ -54,7 +54,7 @@ func (s _slice) Map(f interface{}) Slice {
 	return newSlice(ret)
 }
 
-func (s _slice) FlatMap(f interface{}) Slice {
+func (s _slice) FlatMap(f interface{}) Traversable {
 	sval := reflect.Value(s)
 	len := sval.Len()
 

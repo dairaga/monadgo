@@ -7,7 +7,14 @@ import (
 
 // Option represents Scala Option.
 type Option interface {
-	Traversable
+	Any
+
+	// Traversable methods start
+	Forall(f interface{}) bool
+	Foreach(f interface{})
+	Fold(z, f interface{}) interface{}
+	ToSeq() interface{}
+	// Traversable methods end
 
 	Defined() bool
 	Map(f interface{}) Option
