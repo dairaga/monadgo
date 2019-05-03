@@ -113,7 +113,7 @@ func bindValues(ftyp reflect.Type, outs []reflect.Value) interface{} {
 }
 
 // checkFuncAndInvoke check f is a function or not.
-// Return result from invoke f and convert output of f  with toCallable and true if f is a function.
+// Return result from invoke f and convert output of f with bindValues and true if f is a function.
 func checkFuncAndInvoke(f interface{}) (interface{}, bool) {
 	ftyp := reflect.TypeOf(f)
 	fval := reflect.ValueOf(f)
