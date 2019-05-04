@@ -11,6 +11,8 @@ type Unit interface {
 }
 
 var _ Unit = _unit{}
+var unit = _unit{}
+var unitValue = reflect.ValueOf(unit)
 
 type _unit struct{}
 
@@ -18,12 +20,13 @@ func (u _unit) Get() interface{} {
 	return unit
 }
 
+func (u _unit) rv() reflect.Value {
+	return unitValue
+}
+
 func (u _unit) String() string {
 	return "void"
 }
-
-var unit = _unit{}
-var unitValue = reflect.ValueOf(unit)
 
 // ----------------------------------------------------------------------------
 
@@ -34,16 +37,20 @@ type Null interface {
 
 type _null struct{}
 
+var null Null = &_null{}
+var nullValue = reflect.ValueOf(null)
+
 func (n *_null) Get() interface{} {
 	return nil
+}
+
+func (n *_null) rv() reflect.Value {
+	return nullValue
 }
 
 func (n *_null) String() string {
 	return "null"
 }
-
-var null Null = &_null{}
-var nullValue = reflect.ValueOf(null)
 
 // ----------------------------------------------------------------------------
 
@@ -59,3 +66,13 @@ func (n *_nothing) String() string {
 }
 
 var nothing Nothing = &_nothing{}
+
+// ----------------------------------------------------------------------------
+
+// CanBuildFrom constructs object.
+type CanBuildFrom func(reflect.Value) reflect.Value
+
+// Build ...
+func (b CanBuildFrom) Build(v reflect.Value) reflect.Value {
+	return b(x)
+}

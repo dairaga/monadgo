@@ -33,9 +33,14 @@ type _none reflect.Value
 
 // None respresents Scala None in Option.
 var None Option = &_none{}
+var noneValue = reflect.ValueOf(None)
 
 func (n *_none) Get() interface{} {
-	return nothing
+	return nil
+}
+
+func (n *_none) rv() reflect.Value {
+	return noneValue
 }
 
 func (n *_none) String() string {
@@ -70,7 +75,11 @@ func (n *_none) Fold(z, _ interface{}) interface{} {
 }
 
 func (n *_none) ToSlice() Slice {
-	return SliceOf([]Nothing{nothing})
+	return nil
+}
+
+func (n *_none) ToMap() Map {
+	return nil
 }
 
 func (n *_none) GetOrElse(z interface{}) interface{} {
@@ -89,8 +98,11 @@ func (n *_none) OrElse(z OptionOrElse) Option {
 
 type _some reflect.Value
 
-func (s _some) Get() interface{} {
-	return reflect.Value(s).Interface()
+var _ Option = _some{}
+
+// SomeOf returns Some of x.
+func SomeOf(x interface{}) Option {
+	return _some(reflect.ValueOf(x))
 }
 
 func (s _some) String() string {
@@ -102,28 +114,15 @@ func (s _some) Defined() bool {
 }
 
 func (s _some) Map(f interface{}) Option {
-	fw := funcOf(f)
-	return OptionOf(fw.invoke(s.Get()))
+	return s.container.Map(f).(Option)
 }
 
 func (s _some) FlatMap(f interface{}) Option {
-	fw := funcOf(f)
-	return fw.invoke(s.Get()).(Option)
-}
-
-func (s _some) Forall(f interface{}) bool {
-	fw := funcOf(f)
-	return fw.invoke(s.Get()).(bool)
-}
-
-func (s _some) Foreach(f interface{}) {
-	fw := funcOf(f)
-	fw.invoke(s.Get())
+	return s.container.FlatMap(f).(Option)
 }
 
 func (s _some) Fold(_, f interface{}) interface{} {
-	fw := funcOf(f)
-	return fw.invoke(s.Get())
+	return s.container.Invoke(f).Interface()
 }
 
 func (s _some) ToSlice() Slice {
@@ -138,14 +137,40 @@ func (s _some) OrElse(OptionOrElse) Option {
 	return s
 }
 
-// SomeOf returns Some of x.
-func SomeOf(x interface{}) Option {
-	if x == nil {
-		return _some(nullValue)
-	}
+/*
+type _some reflect.Value
 
-	return _some(reflect.ValueOf(x))
+func (s _some) Get() interface{} {
+	return reflect.Value(s).Interface()
 }
+
+func (s _some) rv() reflect.Value {
+	return reflect.Value(s)
+}
+
+
+
+
+
+
+
+
+
+func (s _some) Forall(f interface{}) bool {
+	fw := funcOf(f)
+	return fw.invoke(s.Get()).(bool)
+}
+
+func (s _some) Foreach(f interface{}) {
+	fw := funcOf(f)
+	fw.invoke(s.Get())
+}
+
+
+
+
+
+
 
 // ----------------------------------------------------------------------------
 
@@ -153,3 +178,4 @@ func SomeOf(x interface{}) Option {
 func OptionOf(x interface{}) Option {
 	return SomeOf(x)
 }
+*/

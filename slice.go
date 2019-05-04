@@ -27,6 +27,10 @@ func (s _slice) Get() interface{} {
 	return reflect.Value(s).Interface()
 }
 
+func (s _slice) rv() reflect.Value {
+	return reflect.Value(s)
+}
+
 func (s _slice) String() string {
 	return fmt.Sprintf("%v", s.Get())
 }

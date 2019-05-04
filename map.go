@@ -26,6 +26,10 @@ func (m _map) Get() interface{} {
 	return reflect.Value(m).Interface()
 }
 
+func (m _map) rv() reflect.Value {
+	return reflect.Value(m)
+}
+
 func (m _map) String() string {
 	return fmt.Sprintf("%v", m.Get())
 }

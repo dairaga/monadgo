@@ -39,35 +39,28 @@ type Traversable interface {
 
 	TakeWhile(f interface{}) Traversable
 
-	/*
-		Collect(f interface{}) Traversable
+	Collect(f interface{}) Traversable
 
-		Count(f interface{}) int
+	Drop(n int) Traversable
 
-		Drop(n int) Traversable
+	Exists(f interface{}) bool
 
-		Exists(f interface{}) Traversable
+	Filter(f interface{}) Traversable
 
-		Filter(f interface{}) Traversable
+	Find(f interface{}) Option
 
-		Find(f interface{}) Option
+	IndexWhere(f interface{}, start int) int
 
-		IndexWhere(f interface{}, start int) int
+	LastIndexWhere(f interface{}, end int) int
 
-		LastIndexWhere(f interface{}, end int) int
+	IsEmpty() bool
 
-		IsEmpty() bool
+	MkString(start, sep, end string) string
 
-		MaxBy(f interface{}) interface{}
+	Reverse() Traversable
 
-		MinBy(f interface{}) interface{}
+	Span(f interface{}) Pair // PairOf Traversable
 
-		MkString(start, sep, end string) string
-
-		Reverse() Traversable
-
-		Span(f interface{}) Pair // PairOf Traversable
-		/*/
 	// ToSeq converts to slice.
 	ToSlice() Slice
 	ToMap() Map

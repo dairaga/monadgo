@@ -31,6 +31,10 @@ func (t _tuple) Get() interface{} {
 	return t.values
 }
 
+func (t _tuple) rv() reflect.Value {
+	return reflect.ValueOf(t)
+}
+
 func (t _tuple) String() string {
 	sb := new(strings.Builder)
 	sb.WriteByte('(')

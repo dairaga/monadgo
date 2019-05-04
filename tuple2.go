@@ -27,6 +27,10 @@ func (t _tuple2) Get() interface{} {
 	return t.values
 }
 
+func (t _tuple2) rv() reflect.Value {
+	return reflect.ValueOf(t)
+}
+
 func (t _tuple2) String() string {
 	return fmt.Sprintf("(%v,%v)", t.values[0], t.values[1])
 }

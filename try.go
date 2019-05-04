@@ -43,6 +43,10 @@ func (f _failure) Get() interface{} {
 	return f.f
 }
 
+func (f _failure) rv() reflect.Value {
+	return reflect.ValueOf(f)
+}
+
 func (f _failure) String() string {
 	return fmt.Sprintf("Failure(%v)", f.f)
 }
@@ -125,6 +129,10 @@ func (s _success) Get() interface{} {
 	return reflect.Value(s).Interface()
 }
 
+func (s _success) rv() reflect.Value {
+	return reflect.Value(s)
+}
+
 func (s _success) String() string {
 	return fmt.Sprintf("Success(%v)", s.Get())
 }
@@ -184,7 +192,7 @@ func (s _success) OrElse(TryOrElse) Try {
 }
 
 func (s _success) ToOption() Option {
-	return OptionOf(s.Get())
+	return SomeOf(s.Get())
 }
 
 // SuccessOf returns Success of x.

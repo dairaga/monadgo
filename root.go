@@ -7,8 +7,13 @@ import (
 
 // Any respensts root type of monadgo.
 type Any interface {
-	// Get returns internal go value.
+	// Get returns original go value.
 	Get() interface{}
+
+	// rv returns reflect.Value wrapping original value.
+	rv() reflect.Value
+
+	// force monadgo type must implement String()
 	fmt.Stringer
 }
 
@@ -19,12 +24,14 @@ var (
 	typeUnit = reflect.TypeOf((*Unit)(nil)).Elem()
 
 	typeTuple  = reflect.TypeOf((*Tuple)(nil)).Elem()
-	typeTuple2 = reflect.TypeOf((*Tuple)(nil)).Elem()
-	typeTuple3 = reflect.TypeOf((*Tuple)(nil)).Elem()
-	typeTuple4 = reflect.TypeOf((*Tuple)(nil)).Elem()
+	typeTuple2 = reflect.TypeOf((*Tuple2)(nil)).Elem()
+	typeTuple3 = reflect.TypeOf((*Tuple3)(nil)).Elem()
+	typeTuple4 = reflect.TypeOf((*Tuple4)(nil)).Elem()
 
 	typePair  = reflect.TypeOf((*Pair)(nil)).Elem()
 	typeError = reflect.TypeOf((*error)(nil)).Elem()
+
+	typeSeq = reflect.TypeOf((*sequence)(nil)).Elem()
 )
 
 // ----------------------------------------------------------------------------
@@ -78,6 +85,25 @@ func mergeSlice(x, y reflect.Value) reflect.Value {
 	}
 
 	return reflect.Append(x, y)
+}
+
+func makeSliceFromFunc(f interface{}, lenAndCap ...int) reflect.Value {
+	ftyp := reflect.TypeOf(f)
+
+	switch ftyp.NumOut() {
+	case 0:
+		return makeSlice(typeUnit, lenAndCap...)
+	case 1:
+		return makeSlice(ftyp.Out(0), lenAndCap...)
+	case 2:
+		return makeSlice(typeTuple2, lenAndCap...)
+	case 3:
+		return makeSlice(typeTuple3, lenAndCap...)
+	case 4:
+		return makeSlice(typeTuple4, lenAndCap...)
+	default:
+		return makeSlice(typeTuple, lenAndCap...)
+	}
 }
 
 func oneToSlice(v reflect.Value) reflect.Value {
