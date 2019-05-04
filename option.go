@@ -105,6 +105,10 @@ func SomeOf(x interface{}) Option {
 	return _some(reflect.ValueOf(x))
 }
 
+func (s _some) Get() interface{} {
+	return 
+}
+
 func (s _some) String() string {
 	return fmt.Sprintf("Some(%v)", s.Get())
 }
