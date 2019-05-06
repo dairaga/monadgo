@@ -66,6 +66,7 @@ func (n *_nothing) String() string {
 }
 
 var nothing Nothing = &_nothing{}
+var nothings []Nothing
 
 // ----------------------------------------------------------------------------
 
@@ -74,5 +75,5 @@ type CanBuildFrom func(reflect.Value) reflect.Value
 
 // Build ...
 func (b CanBuildFrom) Build(v reflect.Value) reflect.Value {
-	return b(x)
+	return b(v)
 }

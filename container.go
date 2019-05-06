@@ -9,10 +9,30 @@ type container struct {
 	v reflect.Value
 }
 
-func genContainer(x interface{}) container {
+func containerFromValue(v reflect.Value) container {
+	if !v.IsValid() {
+		panic("invalid value")
+	}
+
 	return container{
-		x: x,
-		v: reflect.ValueOf(x),
+		x: v.Interface(),
+		v: v,
+	}
+}
+
+func containerOf(x interface{}) container {
+	if x == nil {
+		return container{
+			x: null,
+			v: nullValue,
+		}
+	}
+
+	switch v := x.(type) {
+	case reflect.Value:
+		return containerFromValue(v)
+	default:
+		return containerFromValue(reflect.ValueOf(x))
 	}
 }
 
@@ -26,10 +46,6 @@ func (c container) rv() reflect.Value {
 
 func (c container) invoke(f interface{}) reflect.Value {
 	return funcOf(f).call(c.v)
-}
-
-func (c container) _map(f interface{}, b CanBuildFrom) interface{} {
-	return b.Build(c.invoke(f))
 }
 
 func (c container) FlatMap(f interface{}) interface{} {
@@ -48,49 +64,11 @@ func (c container) Reduce(interface{}) interface{} {
 	return c.x
 }
 
-func (c container) Scan(z, f interface{}) Traversable {
+func (c container) scan(z, f interface{}) seq {
 	zval := reflect.ValueOf(z)
 	s := makeSlice(c.v.Type(), 2, 2)
 	s.Index(0).Set(zval)
 	s.Index(1).Set(foldOf(f).call(zval, c.v))
 
-	return SliceOf()
-
+	return seqFromValue(s)
 }
-
-/*
-	GroupBy(f interface{}) Map
-
-	Take(n int) Traversable
-
-	TakeWhile(f interface{}) Traversable
-
-
-		Collect(f interface{}) Traversable
-
-		Count(f interface{}) int
-
-		Drop(n int) Traversable
-
-		Exists(f interface{}) Traversable
-
-		Filter(f interface{}) Traversable
-
-		Find(f interface{}) Option
-
-		IndexWhere(f interface{}, start int) int
-
-		LastIndexWhere(f interface{}, end int) int
-
-		IsEmpty() bool
-
-		MaxBy(f interface{}) interface{}
-
-		MinBy(f interface{}) interface{}
-
-		MkString(start, sep, end string) string
-
-		Reverse() Traversable
-
-		Span(f interface{}) Pair // PairOf Traversable
-*/

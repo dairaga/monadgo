@@ -8,6 +8,7 @@ import (
 // Traversable represents a scala-like Traversable trait.
 type Traversable interface {
 	Any
+	sequence
 
 	Size() int
 
@@ -39,8 +40,6 @@ type Traversable interface {
 
 	TakeWhile(f interface{}) Traversable
 
-	Collect(f interface{}) Traversable
-
 	Drop(n int) Traversable
 
 	Exists(f interface{}) bool
@@ -60,10 +59,6 @@ type Traversable interface {
 	Reverse() Traversable
 
 	Span(f interface{}) Pair // PairOf Traversable
-
-	// ToSeq converts to slice.
-	ToSlice() Slice
-	ToMap() Map
 }
 
 // TraversableOf returns a Traversable.

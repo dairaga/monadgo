@@ -13,7 +13,6 @@ type Option interface {
 	Forall(f interface{}) bool
 	Foreach(f interface{})
 	Fold(z, f interface{}) interface{}
-	ToSlice() Slice
 	// Traversable methods end
 
 	Defined() bool
@@ -74,14 +73,6 @@ func (n *_none) Fold(z, _ interface{}) interface{} {
 	return z
 }
 
-func (n *_none) ToSlice() Slice {
-	return nil
-}
-
-func (n *_none) ToMap() Map {
-	return nil
-}
-
 func (n *_none) GetOrElse(z interface{}) interface{} {
 	if x, ok := checkFuncAndInvoke(z); ok {
 		return x
@@ -96,17 +87,15 @@ func (n *_none) OrElse(z OptionOrElse) Option {
 
 // ----------------------------------------------------------------------------
 
-type _some reflect.Value
+type _some struct {
+	container
+}
 
 var _ Option = _some{}
 
 // SomeOf returns Some of x.
 func SomeOf(x interface{}) Option {
-	return _some(reflect.ValueOf(x))
-}
-
-func (s _some) Get() interface{} {
-	return 
+	return _some{containerOf(x)}
 }
 
 func (s _some) String() string {
@@ -118,7 +107,7 @@ func (s _some) Defined() bool {
 }
 
 func (s _some) Map(f interface{}) Option {
-	return s.container.Map(f).(Option)
+	return SomeOf(s.container.invoke(f))
 }
 
 func (s _some) FlatMap(f interface{}) Option {
@@ -126,11 +115,7 @@ func (s _some) FlatMap(f interface{}) Option {
 }
 
 func (s _some) Fold(_, f interface{}) interface{} {
-	return s.container.Invoke(f).Interface()
-}
-
-func (s _some) ToSlice() Slice {
-	return newSlice(oneToSlice(reflect.ValueOf(s.Get())))
+	return s.container.invoke(f).Interface()
 }
 
 func (s _some) GetOrElse(interface{}) interface{} {
@@ -141,45 +126,17 @@ func (s _some) OrElse(OptionOrElse) Option {
 	return s
 }
 
-/*
-type _some reflect.Value
-
-func (s _some) Get() interface{} {
-	return reflect.Value(s).Interface()
-}
-
-func (s _some) rv() reflect.Value {
-	return reflect.Value(s)
-}
-
-
-
-
-
-
-
-
-
-func (s _some) Forall(f interface{}) bool {
-	fw := funcOf(f)
-	return fw.invoke(s.Get()).(bool)
-}
-
-func (s _some) Foreach(f interface{}) {
-	fw := funcOf(f)
-	fw.invoke(s.Get())
-}
-
-
-
-
-
-
-
 // ----------------------------------------------------------------------------
 
-// OptionOf returns an Option.
-func OptionOf(x interface{}) Option {
+// OptionOf ...
+func OptionOf(x interface{}) (result Option) {
+	defer func() {
+		result = None
+	}()
+
+	if v, ok := checkFuncAndInvoke(x); ok {
+		return SomeOf(v)
+	}
+
 	return SomeOf(x)
 }
-*/

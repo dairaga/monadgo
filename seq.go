@@ -17,7 +17,7 @@ type seq struct {
 	cap int
 }
 
-func seqFromValue(v reflect.Value) {
+func seqFromValue(v reflect.Value) seq {
 	if !v.IsValid() {
 		panic("invalid value")
 	}
@@ -26,7 +26,7 @@ func seqFromValue(v reflect.Value) {
 		return v.Interface().(sequence).toSeq()
 	}
 
-	if v.kind() == reflect.Slice {
+	if v.Kind() == reflect.Slice {
 		return seq{
 			x:   v.Interface(),
 			v:   v,
@@ -47,7 +47,7 @@ func seqFromValue(v reflect.Value) {
 		}
 	}
 
-	z := makeSlice(v.TypeOf(), 1, 1)
+	z := makeSlice(v.Type(), 1, 1)
 	z.Index(0).Set(v)
 	return seq{
 		x:   z.Interface(),
@@ -118,15 +118,15 @@ func (s seq) _map(f interface{}, b CanBuildFrom) interface{} {
 		return nil
 	}
 
-	ret := makeSliceFromFunc(f, 0, s.len)
+	var ret reflect.Value
 
 	fw := funcOf(f)
 
-	for i := 0; i < len; i++ {
+	for i := 0; i < s.len; i++ {
 		result := fw.call(s.v.Index(i))
 		ret = appendSlice(ret, result)
 	}
-	b.Build(ret)
+	return b.Build(ret)
 }
 
 func (s seq) _flatmap(f interface{}, b CanBuildFrom) interface{} {
@@ -204,7 +204,7 @@ func (s seq) scan(z, f interface{}) seq {
 	}
 	fw := foldOf(f)
 
-	for i := 0; i < len; i++ {
+	for i := 0; i < s.len; i++ {
 		zval = appendSlice(zval, fw.call(zval.Index(i), s.v.Index(i)))
 	}
 
@@ -278,7 +278,7 @@ func (s seq) Exists(f interface{}) bool {
 
 	fw := funcOf(f)
 
-	for i = 0; i < s.len; i++ {
+	for i := 0; i < s.len; i++ {
 		if fw.call(s.v.Index(i)).Bool() {
 			return true
 		}
@@ -298,7 +298,7 @@ func (s seq) filter(f interface{}) seq {
 		}
 	}
 
-	return seqFromValue(seq)
+	return seqFromValue(ret)
 }
 
 func (s seq) Find(f interface{}) Option {
@@ -349,12 +349,17 @@ func (s seq) Reverse() seq {
 		ret.Index(i).Set(s.v.Index(s.len - 1 - i))
 	}
 
-	return seqFromValue(seq)
+	return seqFromValue(ret)
 }
 
 func (s seq) span(f interface{}) Tuple2 {
-	left := reflect.MakeSlice(s.v.Type(), 0, 0)
-	right := reflect.MakeSlice(s.v.Type(), 0, 0)
+	if s.len <= 0 {
+		return Tuple2Of(null, null)
+	}
+
+	//left := reflect.MakeSlice(s.v.Type(), 0, 0)
+	//right := reflect.MakeSlice(s.v.Type(), 0, 0)
+	var left, right reflect.Value
 
 	fw := funcOf(f)
 
@@ -364,7 +369,7 @@ func (s seq) span(f interface{}) Tuple2 {
 		if fw.call(x).Bool() {
 			right = appendSlice(right, x)
 		} else {
-			left = append(left, x)
+			left = appendSlice(left, x)
 		}
 	}
 
