@@ -145,6 +145,16 @@ func (s seq) _flatmap(f interface{}, b CanBuildFrom) interface{} {
 	return b.Build(ret)
 }
 
+func (s seq) ToSlice() Slice {
+	return SliceOf(s.x)
+}
+
+func (s seq) ToMap() Map {
+	if !s.v.Type().Elem().Implements(typeTuple2) {
+
+	}
+}
+
 func (s seq) Fold(z interface{}, f interface{}) interface{} {
 	if s.len <= 0 {
 		return z

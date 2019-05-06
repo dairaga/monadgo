@@ -8,7 +8,6 @@ import (
 // Option represents Scala Option.
 type Option interface {
 	Any
-
 	// Traversable methods start
 	Forall(f interface{}) bool
 	Foreach(f interface{})
@@ -26,17 +25,38 @@ type Option interface {
 // OptionOrElse represents a alternative function for Option.OrElse.
 type OptionOrElse func() Option
 
+var optionCBF CanBuildFrom = func(v reflect.Value) reflect.Value {
+	if v == nothingValue {
+		return None
+	}
+
+	return someFromValue(v)
+}
+
+// OptionOf ...
+func OptionOf(x interface{}) (result Option) {
+	defer func() {
+		if r := recover(); r != nil {
+			result = None
+		}
+	}()
+
+	if v, ok := checkFuncAndInvoke(x); ok {
+		return SomeOf(v)
+	}
+
+	return SomeOf(x)
+}
+
 // ----------------------------------------------------------------------------
 
-type _none reflect.Value
+type _none struct {
+	container
+}
 
 // None respresents Scala None in Option.
-var None Option = &_none{}
+var None Option = &_none{containerFromValue(nothingValue)}
 var noneValue = reflect.ValueOf(None)
-
-func (n *_none) Get() interface{} {
-	return nil
-}
 
 func (n *_none) rv() reflect.Value {
 	return noneValue
@@ -93,9 +113,26 @@ type _some struct {
 
 var _ Option = _some{}
 
+func someFromValue(v reflect.Value) _some {
+	if !v.IsValid() {
+		v = nullValue
+	}
+
+	return _some{containerFromValue(v)}
+}
+
 // SomeOf returns Some of x.
 func SomeOf(x interface{}) Option {
-	return _some{containerOf(x)}
+	if x == null {
+		return someFromValue(nullValue)
+	}
+
+	switch v := x.(type) {
+	case reflect.Value:
+		return someFromValue(v)
+	default:
+		return someFromValue(reflect.ValueOf(x))
+	}
 }
 
 func (s _some) String() string {
@@ -107,11 +144,11 @@ func (s _some) Defined() bool {
 }
 
 func (s _some) Map(f interface{}) Option {
-	return SomeOf(s.container.invoke(f))
+	return s.container._map(f, optionCBF).(Option)
 }
 
 func (s _some) FlatMap(f interface{}) Option {
-	return s.container.FlatMap(f).(Option)
+	return s.container.flatMap(f).(Option)
 }
 
 func (s _some) Fold(_, f interface{}) interface{} {
@@ -124,19 +161,4 @@ func (s _some) GetOrElse(interface{}) interface{} {
 
 func (s _some) OrElse(OptionOrElse) Option {
 	return s
-}
-
-// ----------------------------------------------------------------------------
-
-// OptionOf ...
-func OptionOf(x interface{}) (result Option) {
-	defer func() {
-		result = None
-	}()
-
-	if v, ok := checkFuncAndInvoke(x); ok {
-		return SomeOf(v)
-	}
-
-	return SomeOf(x)
 }

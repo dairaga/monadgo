@@ -91,10 +91,10 @@ func bindValues(ftyp reflect.Type, outs []reflect.Value) interface{} {
 
 	switch len(outs) {
 	case 0:
-		return unit
+		return Unit
 	case 1:
 		if outs[0].Interface() == nil {
-			return null
+			return Null
 		}
 		return outs[0].Interface()
 	case 2:

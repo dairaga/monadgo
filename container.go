@@ -11,19 +11,20 @@ type container struct {
 
 func containerFromValue(v reflect.Value) container {
 	if !v.IsValid() {
-		panic("invalid value")
+		v = nothingValue
 	}
 
 	return container{
 		x: v.Interface(),
 		v: v,
 	}
+
 }
 
 func containerOf(x interface{}) container {
 	if x == nil {
 		return container{
-			x: null,
+			x: Null,
 			v: nullValue,
 		}
 	}
@@ -48,10 +49,6 @@ func (c container) invoke(f interface{}) reflect.Value {
 	return funcOf(f).call(c.v)
 }
 
-func (c container) FlatMap(f interface{}) interface{} {
-	return c.invoke(f).Interface()
-}
-
 func (c container) Forall(f interface{}) bool {
 	return c.invoke(f).Bool()
 }
@@ -60,15 +57,14 @@ func (c container) Foreach(f interface{}) {
 	c.invoke(f)
 }
 
-func (c container) Reduce(interface{}) interface{} {
-	return c.x
+func (c container) Exists(f interface{}) bool {
+	return c.Forall(f)
 }
 
-func (c container) scan(z, f interface{}) seq {
-	zval := reflect.ValueOf(z)
-	s := makeSlice(c.v.Type(), 2, 2)
-	s.Index(0).Set(zval)
-	s.Index(1).Set(foldOf(f).call(zval, c.v))
+func (c container) _map(f interface{}, b CanBuildFrom) interface{} {
+	return b.Build(c.invoke(f)).Interface()
+}
 
-	return seqFromValue(s)
+func (c container) flatMap(f interface{}) interface{} {
+	return c.invoke(f).Interface()
 }

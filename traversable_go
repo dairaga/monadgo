@@ -1,0 +1,58 @@
+package monadgo
+
+// Traversable represents a scala-like Traversable trait.
+type Traversable interface {
+	Any
+	sequence
+
+	Size() int
+
+	Map(f interface{}) Traversable
+
+	FlatMap(f interface{}) Traversable
+
+	// Forall tests whether a predicate holds for all elements.
+	Forall(f interface{}) bool
+
+	// Foreach applies f to all element.
+	Foreach(f interface{})
+
+	// Fold folds the elements using specified associative binary operator.
+	Fold(z, f interface{}) interface{}
+	/*
+		Head() interface{}
+
+		Tail() Traversable
+
+		// Reduce reduces the elements of this iterable collection using the specified associative binary operator.
+		Reduce(f interface{}) interface{}
+
+		Scan(z, f interface{}) Traversable
+
+		GroupBy(f interface{}) Map
+
+		Take(n int) Traversable
+
+		TakeWhile(f interface{}) Traversable
+
+		Drop(n int) Traversable
+
+		Exists(f interface{}) bool
+
+		Filter(f interface{}) Traversable
+
+		Find(f interface{}) Option
+
+		IndexWhere(f interface{}, start int) int
+
+		LastIndexWhere(f interface{}, end int) int
+
+		IsEmpty() bool
+
+		MkString(start, sep, end string) string
+
+		Reverse() Traversable
+
+		Span(f interface{}) Pair // PairOf Traversable
+	*/
+}
