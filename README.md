@@ -61,11 +61,3 @@ MonadGo is implements Scala monadic operations, like map, flatMap, fold, foreach
 **Map** wraps Go map and implements monad functions like in Map of Scala.
 
 [Map in Scala](https://www.scala-lang.org/api/current/scala/collection/Map.html)
-
-## Momo
-
-1. 重新設定一個共用底層 for Otpion and Try
-1. Slice 是重點
-1. Map 轉 Slice 操作後，再轉回 Map (能轉就轉，不能轉就是 Slice)
-1. 小心處理 Slice 是 nil 問題。
-1. None 肚子放 Unit 就可以套用底層。
