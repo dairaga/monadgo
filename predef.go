@@ -17,11 +17,17 @@ type Any interface {
 	fmt.Stringer
 }
 
+// ----------------------------------------------------------------------------
+
 // Unit represents scala-like Unit.
-type _unit struct{}
+type Unit interface {
+	Any
+}
+
+type _unit bool
 
 func (u _unit) Get() interface{} {
-	return Unit
+	return unit
 }
 
 func (u _unit) rv() reflect.Value {
@@ -29,12 +35,15 @@ func (u _unit) rv() reflect.Value {
 }
 
 func (u _unit) String() string {
-	return "void"
+	return "Void"
 }
 
 // ----------------------------------------------------------------------------
 
 // Null represents scala-like Null.
+type Null interface {
+	Any
+}
 
 type _null struct{}
 
@@ -47,73 +56,24 @@ func (n *_null) rv() reflect.Value {
 }
 
 func (n *_null) String() string {
-	return "null"
+	return "Null"
 }
 
 // ----------------------------------------------------------------------------
 
-// Nothing represents scala Nothing.
+// Nothing represents scala-like Nothing.
 type Nothing interface {
-	Any
+	Null
 }
 
-type _nothing struct{}
-
-func (n *_nothing) Get() interface{} {
-	return nothing
-}
-
-func (n *_nothing) String() string {
-	return "Nothing"
+type _nothing struct {
+	Null
 }
 
 func (n *_nothing) rv() reflect.Value {
 	return nothingValue
 }
 
-// ----------------------------------------------------------------------------
-
-// CanBuildFrom constructs object.
-type CanBuildFrom func(reflect.Value) reflect.Value
-
-// Build ...
-func (b CanBuildFrom) Build(v reflect.Value) reflect.Value {
-	return b(v)
-}
-
-// ----------------------------------------------------------------------------
-
-// PartialFunc is a scala-like PartialFunction.
-type PartialFunc struct {
-	condition reflect.Value
-	action    reflect.Value
-}
-
-// PartialFuncOf ...
-func PartialFuncOf(c, a interface{}) PartialFunc {
-	return PartialFunc{
-		condition: reflect.ValueOf(c),
-		action:    reflect.ValueOf(a),
-	}
-}
-
-// IsDefinedAt ...
-func (p PartialFunc) IsDefinedAt(x interface{}) bool {
-	switch p.condition.Kind() {
-	case reflect.Bool:
-		return p.condition.Bool()
-	case reflect.Func:
-		return p.condition.Call([]reflect.Value{reflect.ValueOf(x)})[0].Bool()
-	}
-}
-
-// Call ...
-func (p PartialFunc) Call(x interface{}) interface{} {
-	if p.IsDefinedAt(x) {
-		if p.action.Kind() == reflect.Func {
-			return p.action.Call([]reflect.Value{reflect.ValueOf(x)})[0].Interface()
-		}
-		return p.action.Interface()
-	}
-	return nothing
+func (n *_nothing) String() string {
+	return "Nothing"
 }

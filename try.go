@@ -5,164 +5,77 @@ import (
 	"reflect"
 )
 
-// Try represents Scala Try
+// TryOrElse is a function type for Try.OrElse.
+type TryOrElse func() Try
+
+// Try represents scala-like Try
 type Try interface {
 	Any
+
+	OK() bool
+	Failed() bool
 
 	// Traversable methods start
 	Forall(f interface{}) bool
 	Foreach(f interface{})
 	Fold(z, f interface{}) interface{}
-	ToSlice() Slice
 	// Traversable methods end
-
-	OK() bool
-	Failed() bool
 
 	Map(f interface{}) Try
 	FlatMap(f interface{}) Try
 
+	OrElse(z TryOrElse) Try
 	GetOrElse(z interface{}) interface{}
-	OrElse(TryOrElse) Try
 
 	ToOption() Option
 }
 
-// TryOrElse represents a function applied on Try.OrElse.
-type TryOrElse func() Try
-
-// ----------------------------------------------------------------------------
-
-type _failure struct {
-	f interface{}
+type traitTry struct {
+	ok bool
+	container
 }
 
-var _ Try = _failure{}
-
-func (f _failure) Get() interface{} {
-	return f.f
+func (t *traitTry) String() string {
+	if t.ok {
+		return fmt.Sprintf("Success(%v)", t.Get())
+	}
+	return fmt.Sprintf("Failure(%v)", t.Get())
 }
 
-func (f _failure) rv() reflect.Value {
-	return reflect.ValueOf(f)
+func (t *traitTry) OK() bool {
+	return t.ok
 }
 
-func (f _failure) String() string {
-	return fmt.Sprintf("Failure(%v)", f.f)
+func (t *traitTry) Failed() bool {
+	return !t.ok
 }
 
-func (f _failure) OK() bool {
-	return false
+func (t *traitTry) Forall(f interface{}) bool {
+	if !t.ok {
+		return false
+	}
+
+	return t.container.Forall(f)
 }
 
-func (f _failure) Failed() bool {
-	return true
+func (t *traitTry) Foreach(f interface{}) {
+	if t.ok {
+		t.container.Foreach(f)
+	}
 }
 
-func (f _failure) Map(interface{}) Try {
-	return f
-}
+func (t *traitTry) Fold(z, f interface{}) interface{} {
 
-func (f _failure) FlatMap(interface{}) Try {
-	return f
-}
-
-func (f _failure) Forall(interface{}) bool {
-	return false
-}
-
-func (f _failure) Foreach(interface{}) {
-
-}
-
-func (f _failure) Fold(z, _ interface{}) interface{} {
 	ztyp := reflect.TypeOf(z)
-	if ztyp.Kind() != reflect.Func {
+
+	if !t.ok {
+		if ztyp.Kind() == reflect.Func {
+			return t.invoke(z).Interface()
+		}
 		return z
 	}
-	zw := funcOf(z)
-	return zw.invoke(f.Get())
-}
 
-func (f _failure) ToSlice() Slice {
-	switch v := f.f.(type) {
-	case error:
-		return SliceOf([]error{v})
-	case bool:
-		return SliceOf([]bool{v})
-	default:
-		return nil
-	}
-}
-
-func (f _failure) GetOrElse(z interface{}) interface{} {
-	if x, ok := checkFuncAndInvoke(z); ok {
-		return x
-	}
-
-	return z
-}
-
-func (f _failure) OrElse(t TryOrElse) Try {
-	return t()
-}
-
-func (f _failure) ToOption() Option {
-	return None
-}
-
-// FailureOf returns Failure of x if x is error or false, or returns Success of x.
-func FailureOf(x interface{}) Try {
-	if isErrorOrFalse(x) {
-		return _failure{x}
-	}
-	return nil
-}
-
-// ----------------------------------------------------------------------------
-
-type _success reflect.Value
-
-var _ Try = _success{}
-
-func (s _success) Get() interface{} {
-	return reflect.Value(s).Interface()
-}
-
-func (s _success) rv() reflect.Value {
-	return reflect.Value(s)
-}
-
-func (s _success) String() string {
-	return fmt.Sprintf("Success(%v)", s.Get())
-}
-
-func (s _success) OK() bool {
-	return true
-}
-
-func (s _success) Failed() bool {
-	return false
-}
-
-func (s _success) Map(f interface{}) Try {
-	return SuccessOf(funcOf(f).invoke(s.Get()))
-}
-
-func (s _success) FlatMap(f interface{}) Try {
-	return funcOf(f).invoke(s.Get()).(Try)
-}
-
-func (s _success) Forall(f interface{}) bool {
-	return funcOf(f).invoke(s.Get()).(bool)
-}
-
-func (s _success) Foreach(f interface{}) {
-	funcOf(f).invoke(s.Get())
-}
-
-func (s _success) Fold(z, f interface{}) interface{} {
-	ret := funcOf(f).invoke(s.Get())
+	ret := t.container.invoke(f).Interface()
 
 	var x interface{}
 	v, ok := ret.(Tuple)
@@ -176,35 +89,59 @@ func (s _success) Fold(z, f interface{}) interface{} {
 		return ret
 	}
 
-	return TryOf(x).Fold(z, nil)
+	return FailureOf(x).Fold(z, nil)
 }
 
-func (s _success) ToSlice() Slice {
-	return newSlice(oneToSlice(reflect.ValueOf(s.Get())))
-}
-
-func (s _success) GetOrElse(interface{}) interface{} {
-	return s.Get()
-}
-
-func (s _success) OrElse(TryOrElse) Try {
-	return s
-}
-
-func (s _success) ToOption() Option {
-	return SomeOf(s.Get())
-}
-
-// SuccessOf returns Success of x.
-func SuccessOf(x interface{}) Try {
-	if x == nil {
-		return _success(nullValue)
+func (t *traitTry) Map(f interface{}) Try {
+	if t.ok {
+		return tryFromContainer(t._map(f), true)
 	}
 
-	return _success(reflect.ValueOf(x))
+	return t
 }
 
-// ----------------------------------------------------------------------------
+func (t *traitTry) FlatMap(f interface{}) Try {
+	if t.ok {
+		return t._flatMap(f).(Try)
+
+	}
+	return t
+}
+
+func (t *traitTry) OrElse(z TryOrElse) Try {
+	if !t.ok {
+		return z()
+	}
+
+	return t
+}
+
+func (t *traitTry) GetOrElse(z interface{}) interface{} {
+	if !t.ok {
+		return checkAndInvoke(z)
+	}
+
+	return t.Get()
+}
+
+func (t *traitTry) ToOption() Option {
+	if !t.ok {
+		return None
+	}
+
+	return OptionOf(t.container)
+}
+
+func tryFromContainer(c container, ok bool) Try {
+	return &traitTry{
+		ok:        ok,
+		container: c,
+	}
+}
+
+func tryFromX(x interface{}) Try {
+	return tryFromContainer(containerOf(x), !isErrorOrFalse(x))
+}
 
 // isErrorOrFalse checks x is an existing error or false.
 func isErrorOrFalse(x interface{}) bool {
@@ -218,11 +155,25 @@ func isErrorOrFalse(x interface{}) bool {
 	}
 }
 
+// ----------------------------------------------------------------------------
+
+// FailureOf returns Failure of x if x is error or false, or returns Success of x.
+func FailureOf(x interface{}) Try {
+	return tryFromContainer(containerOf(x), false)
+}
+
+// ----------------------------------------------------------------------------
+
+// SuccessOf returns Success of x.
+func SuccessOf(x interface{}) Try {
+	return tryFromContainer(containerOf(x), true)
+}
+
 // tryFromTuple return a Try from Tuple.
 func tryFromTuple(t Tuple) Try {
 	x := t.V(t.Dimension() - 1)
-	if f := FailureOf(x); f != nil {
-		return f
+	if isErrorOrFalse(x) {
+		return FailureOf(x)
 	}
 
 	reduce := false
@@ -246,8 +197,8 @@ func tryFromTuple(t Tuple) Try {
 // Return Failure if errOrFalse is false or error existing,
 // or Success of Null.
 func TryOf(errOrFalse interface{}) Try {
-	if t := FailureOf(errOrFalse); t != nil {
-		return t
+	if isErrorOrFalse(errOrFalse) {
+		return FailureOf(errOrFalse)
 	}
 	return SuccessOf(errOrFalse)
 }
@@ -257,8 +208,8 @@ func TryOf(errOrFalse interface{}) Try {
 // Return Failure if errOrFalse is false or error existing,
 // or Success of x.
 func Try1Of(x, errOrFalse interface{}) Try {
-	if f := FailureOf(errOrFalse); f != nil {
-		return f
+	if isErrorOrFalse(errOrFalse) {
+		return FailureOf(errOrFalse)
 	}
 
 	return SuccessOf(x)
@@ -269,8 +220,8 @@ func Try1Of(x, errOrFalse interface{}) Try {
 // Return Failure if errOrFalse is false or error existing,
 // or Success of Tuple2(x1,x2).
 func Try2Of(x1, x2, errOrFalse interface{}) Try {
-	if f := FailureOf(errOrFalse); f != nil {
-		return f
+	if isErrorOrFalse(errOrFalse) {
+		return FailureOf(errOrFalse)
 	}
 
 	return SuccessOf(Tuple2Of(x1, x2))

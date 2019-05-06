@@ -20,7 +20,7 @@ func ExampleOptionOf() {
 	fmt.Println(n)
 
 	// Output:
-	// Some(null)
+	// Some(Null)
 	// Some(error)
 	// Some(100)
 }
@@ -32,13 +32,17 @@ func ExampleOption_Get() {
 	x = OptionOf("ABC")
 	printGet(x.Get())
 
+	x = OptionOf(nil)
+	printGet(x.Get())
+
 	printGet(None)
 	printGet(None.Get())
 
 	// Output:
 	// 100, int
 	// ABC, string
-	// None, *monadgo._none
+	// Null, *monadgo._null
+	// None, *monadgo.traitOption
 	// Nothing, *monadgo._nothing
 }
 
@@ -134,30 +138,6 @@ func ExampleOption_Fold() {
 	// 1000, int
 }
 
-func ExampleOption_ToSlice() {
-	v := OptionOf(nil).ToSlice()
-	printGet(v.Get())
-	fmt.Println(v == nil)
-	fmt.Println(len(v.Get().([]*_null)))
-
-	v = OptionOf(1000).ToSlice()
-	printGet(v.Get())
-	fmt.Println(v == nil)
-	fmt.Println(len(v.Get().([]int)))
-
-	v = None.ToSlice()
-	printGet(v.Get())
-
-	// Output:
-	// [null], []*monadgo._null
-	// false
-	// 1
-	// [1000], []int
-	// false
-	// 1
-	// [Nothing], []monadgo.Nothing
-}
-
 func ExampleOption_GetOrElse() {
 	v := OptionOf(nil).GetOrElse(func() string {
 		return "ABC"
@@ -176,7 +156,7 @@ func ExampleOption_GetOrElse() {
 	printGet(x)
 
 	// Output:
-	// null, *monadgo._null
+	// Null, *monadgo._null
 	// 1000, int
 	// 100, float64
 	// 101, int64
@@ -201,9 +181,9 @@ func ExampleOption_Map() {
 	printGet(v)
 
 	// Output:
-	// Some(void), monadgo._some
-	// Some(10000), monadgo._some
-	// None, *monadgo._none
+	// Some(Void), *monadgo.traitOption
+	// Some(10000), *monadgo.traitOption
+	// None, *monadgo.traitOption
 
 }
 
@@ -227,13 +207,13 @@ func ExampleOption_FlatMap() {
 	printGet(v)
 
 	// Output:
-	// None, *monadgo._none
-	// Some(10000), monadgo._some
-	// None, *monadgo._none
-
+	// None, *monadgo.traitOption
+	// Some(10000), *monadgo.traitOption
+	// None, *monadgo.traitOption
 }
 
 func ExampleOption_OrElse() {
+
 	v := OptionOf(nil).OrElse(func() Option {
 		return OptionOf(1000)
 	})
@@ -247,8 +227,8 @@ func ExampleOption_OrElse() {
 	printGet(v.Get())
 
 	// Output:
-	// Some(null)
-	// null, *monadgo._null
+	// Some(Null)
+	// Null, *monadgo._null
 	// Some(1000)
 	// 1000, int
 }

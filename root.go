@@ -1,37 +1,36 @@
 package monadgo
 
-import (
-	"reflect"
+import "reflect"
+
+var (
+	typeValues = []reflect.Type{reflect.TypeOf(reflect.Value{})}
+	typeError  = reflect.TypeOf((*error)(nil)).Elem()
 )
 
-// Buttom Values
 var (
-	Unit      = _unit{}
-	unitValue = reflect.ValueOf(Unit)
+	unit      = _unit(false)
+	unitValue = reflect.ValueOf(unit)
+	typeUnit  = reflect.TypeOf((*Unit)(nil)).Elem()
 
-	Null      = &_null{}
-	nullValue = reflect.ValueOf(nullValue)
+	null      = &_null{}
+	nullValue = reflect.ValueOf(null)
+	typeNull  = reflect.TypeOf((*Null)(nil)).Elem()
 
-	nothing      = &_nothing{}
+	nothing      = &_nothing{null}
 	nothingValue = reflect.ValueOf(nothing)
-	nothings     = []Nothing{}
+	typeNothing  = reflect.TypeOf((*Nothing)(nil)).Elem()
+
+	nothings      = []Nothing{}
+	nothingsValue = reflect.ValueOf(nothings)
+
+	typeSeq = reflect.TypeOf((*sequence)(nil)).Elem()
 )
 
-// interface types
 var (
-	typeValue = reflect.TypeOf(reflect.Value{})
-	typeUnit  = reflect.TypeOf(Unit)
-
 	typeTuple  = reflect.TypeOf((*Tuple)(nil)).Elem()
 	typeTuple2 = reflect.TypeOf((*Tuple2)(nil)).Elem()
 	typeTuple3 = reflect.TypeOf((*Tuple3)(nil)).Elem()
 	typeTuple4 = reflect.TypeOf((*Tuple4)(nil)).Elem()
 
-	typePair  = reflect.TypeOf((*Pair)(nil)).Elem()
-	typeError = reflect.TypeOf((*error)(nil)).Elem()
-
-	typeSeq = reflect.TypeOf((*sequence)(nil)).Elem()
-
-	typeMap   = reflect.TypeOf((*Map)(nil)).Elem()
-	typeSlice = reflect.TypeOf((*Slice)(nil)).Elem()
+	typePair = reflect.TypeOf((*Pair)(nil)).Elem()
 )

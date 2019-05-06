@@ -20,11 +20,11 @@ func ExampleTryOf() {
 	// Output:
 	// true
 	// false
-	// Success(null), monadgo._success
-	// null, *monadgo._null
+	// Success(Null), *monadgo.traitTry
+	// Null, *monadgo._null
 	// false
 	// true
-	// Failure(error), monadgo._failure
+	// Failure(error), *monadgo.traitTry
 	// error, *errors.errorString
 }
 
@@ -62,24 +62,24 @@ func ExampleTry1Of() {
 	// Output:
 	// true
 	// false
-	// Success(100), monadgo._success
+	// Success(100), *monadgo.traitTry
 	// 100, int
 	// true
 	// false
-	// Success(10), monadgo._success
+	// Success(10), *monadgo.traitTry
 	// 10, int
 	// false
 	// true
-	// Failure(error), monadgo._failure
+	// Failure(error), *monadgo.traitTry
 	// error, *errors.errorString
 	// false
 	// true
-	// Failure(false), monadgo._failure
+	// Failure(false), *monadgo.traitTry
 	// false, bool
 	// true
 	// false
-	// Success(null), monadgo._success
-	// null, *monadgo._null
+	// Success(Null), *monadgo.traitTry
+	// Null, *monadgo._null
 }
 
 func ExampleTry2Of() {
@@ -112,21 +112,21 @@ func ExampleTry2Of() {
 	// Output:
 	// true
 	// false
-	// Success((100,ABC)), monadgo._success
+	// Success((100,ABC)), *monadgo.traitTry
 	// (100,ABC), monadgo._tuple2
 	// 100, int
 	// ABC, string
 	// true
 	// false
-	// Success((10,AB)), monadgo._success
+	// Success((10,AB)), *monadgo.traitTry
 	// (10,AB), monadgo._tuple2
 	// false
 	// true
-	// Failure(error), monadgo._failure
+	// Failure(error), *monadgo.traitTry
 	// error, *errors.errorString
 	// false
 	// true
-	// Failure(false), monadgo._failure
+	// Failure(false), *monadgo.traitTry
 	// false, bool
 }
 
@@ -193,34 +193,6 @@ func ExampleTry_Forall() {
 	// false, bool
 	// false, bool
 	// true, bool
-}
-
-func ExampleTry_ToSlice() {
-	v := TryOf(false).ToSlice()
-	printGet(v.Get())
-
-	v = TryOf(fmt.Errorf("error")).ToSlice()
-	printGet(v.Get())
-
-	v = TryOf(true).ToSlice()
-	printGet(v.Get())
-
-	v = TryOf(nil).ToSlice()
-	printGet(v.Get())
-
-	v = Try1Of("ABC", true).ToSlice()
-	printGet(v.Get())
-
-	v = Try2Of("ABC", 100, true).ToSlice()
-	printGet(v.Get())
-
-	// Output:
-	// [false], []bool
-	// [error], []error
-	// [true], []bool
-	// [null], []*monadgo._null
-	// [ABC], []string
-	// [(ABC,100)], []monadgo._tuple2
 }
 
 func ExampleTry_Fold() {
@@ -291,8 +263,8 @@ func ExampleTry_OrElse() {
 	printGet(v)
 
 	// Output:
-	// Success(100), monadgo._success
-	// Success(true), monadgo._success
+	// Success(100), *monadgo.traitTry
+	// Success(true), *monadgo.traitTry
 }
 
 func ExampleTry_Map() {
@@ -331,16 +303,16 @@ func ExampleTry_Map() {
 	printGet(v.Get())
 
 	// Output:
-	// Failure(false), monadgo._failure
-	// Failure(error), monadgo._failure
-	// Success(ok:true), monadgo._success
+	// Failure(false), *monadgo.traitTry
+	// Failure(error), *monadgo.traitTry
+	// Success(ok:true), *monadgo.traitTry
 	// ok:true, string
-	// Success(ok:null), monadgo._success
-	// ok:null, string
-	// Success((ok:true,1)), monadgo._success
+	// Success(ok:Null), *monadgo.traitTry
+	// ok:Null, string
+	// Success((ok:true,1)), *monadgo.traitTry
 	// (ok:true,1), monadgo._pair
-	// Success(null), monadgo._success
-	// null, *monadgo._null
+	// Success(Null), *monadgo.traitTry
+	// Null, *monadgo._null
 
 }
 
@@ -358,9 +330,9 @@ func ExampleTry_FlatMap() {
 	printGet(v.Get())
 
 	// Output:
-	// Failure(false), monadgo._failure
+	// Failure(false), *monadgo.traitTry
 	// false, bool
-	// Success(100), monadgo._success
+	// Success(100), *monadgo.traitTry
 	// 100, int
 }
 
@@ -378,9 +350,9 @@ func ExampleTry_ToOption() {
 	printGet(v)
 
 	// Output:
-	// None, *monadgo._none
-	// None, *monadgo._none
-	// Some(null), monadgo._some
-	// Some(10), monadgo._some
+	// None, *monadgo.traitOption
+	// None, *monadgo.traitOption
+	// Some(Null), *monadgo.traitOption
+	// Some(10), *monadgo.traitOption
 
 }

@@ -1,41 +1,49 @@
 package monadgo
 
-import (
-	"reflect"
-)
+import "reflect"
 
+// container wraps a GO value.
 type container struct {
-	x interface{}
-	v reflect.Value
+	x     interface{}
+	v     reflect.Value
+	empty bool
 }
 
-func containerFromValue(v reflect.Value) container {
-	if !v.IsValid() {
-		v = nothingValue
-	}
+var nullContainer = container{
+	x: null,
+	v: nullValue,
+}
 
-	return container{
-		x: v.Interface(),
-		v: v,
-	}
-
+var nothingContainer = container{
+	x:     nothing,
+	v:     nothingValue,
+	empty: true,
 }
 
 func containerOf(x interface{}) container {
 	if x == nil {
-		return container{
-			x: Null,
-			v: nullValue,
-		}
+		return nullContainer
 	}
 
 	switch v := x.(type) {
 	case reflect.Value:
-		return containerFromValue(v)
+		if !v.IsValid() {
+			return nothingContainer
+		}
+
+		return container{
+			x: v.Interface(),
+			v: v,
+		}
 	default:
-		return containerFromValue(reflect.ValueOf(x))
+		return container{
+			x: x,
+			v: reflect.ValueOf(v),
+		}
 	}
 }
+
+// ----------------------------------------------------------------------------
 
 func (c container) Get() interface{} {
 	return c.x
@@ -49,22 +57,35 @@ func (c container) invoke(f interface{}) reflect.Value {
 	return funcOf(f).call(c.v)
 }
 
+func (c container) _map(f interface{}) container {
+	if c.empty {
+		return c
+	}
+
+	return containerOf(c.invoke(f))
+}
+
+func (c container) _flatMap(f interface{}) interface{} {
+	if c.empty {
+		return c
+	}
+	return c.invoke(f).Interface()
+}
+
 func (c container) Forall(f interface{}) bool {
+	if c.empty {
+		return false
+	}
+
 	return c.invoke(f).Bool()
 }
 
 func (c container) Foreach(f interface{}) {
-	c.invoke(f)
+	if !c.empty {
+		c.invoke(f)
+	}
 }
 
-func (c container) Exists(f interface{}) bool {
-	return c.Forall(f)
-}
-
-func (c container) _map(f interface{}, b CanBuildFrom) interface{} {
-	return b.Build(c.invoke(f)).Interface()
-}
-
-func (c container) flatMap(f interface{}) interface{} {
-	return c.invoke(f).Interface()
+func (c container) Empty() bool {
+	return c.empty
 }

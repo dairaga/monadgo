@@ -1,15 +1,20 @@
 package monadgo
 
-import "reflect"
+import (
+	"reflect"
+)
 
-// makeMap returns a reflect.Value of go map with k->v.
-func makeMap(k, v reflect.Type, size int) reflect.Value {
-	if size < 0 {
-		return reflect.MakeMap(reflect.MapOf(k, v))
+func checkAndInvoke(x interface{}) interface{} {
+	xval := reflect.ValueOf(x)
+
+	if xval.Kind() == reflect.Func {
+		return xval.Call(nil)[0].Interface()
 	}
 
-	return reflect.MakeMapWithSize(reflect.MapOf(k, v), size)
+	return x
 }
+
+// ----------------------------------------------------------------------------
 
 // makeSlice returns a reflect.Value of go slice.
 func makeSlice(t reflect.Type, lenAndCap ...int) reflect.Value {
@@ -36,6 +41,12 @@ func appendSlice(x, y reflect.Value) reflect.Value {
 
 }
 
+func oneToSlice(v reflect.Value) reflect.Value {
+	s := makeSlice(v.Type(), 1, 1)
+	s.Index(0).Set(v)
+	return s
+}
+
 // mergeSlice returns a reflect.Value of go slice that x merges y.
 func mergeSlice(x, y reflect.Value) reflect.Value {
 	if !x.IsValid() {
@@ -53,30 +64,15 @@ func mergeSlice(x, y reflect.Value) reflect.Value {
 	return reflect.Append(x, y)
 }
 
-/*
-func makeSliceFromFunc(f interface{}, lenAndCap ...int) reflect.Value {
-	ftyp := reflect.TypeOf(f)
+// ----------------------------------------------------------------------------
 
-	switch ftyp.NumOut() {
-	case 0:
-		return makeSlice(typeUnit, lenAndCap...)
-	case 1:
-		return makeSlice(ftyp.Out(0), lenAndCap...)
-	case 2:
-		return makeSlice(typeTuple2, lenAndCap...)
-	case 3:
-		return makeSlice(typeTuple3, lenAndCap...)
-	case 4:
-		return makeSlice(typeTuple4, lenAndCap...)
-	default:
-		return makeSlice(typeTuple, lenAndCap...)
+// makeMap returns a reflect.Value of go map with k->v.
+func makeMap(k, v reflect.Type, size int) reflect.Value {
+	if size < 0 {
+		return reflect.MakeMap(reflect.MapOf(k, v))
 	}
-}
-*/
-func oneToSlice(v reflect.Value) reflect.Value {
-	s := makeSlice(v.Type(), 1, 1)
-	s.Index(0).Set(v)
-	return s
+
+	return reflect.MakeMapWithSize(reflect.MapOf(k, v), size)
 }
 
 // mergeMap returns a reflect.Value of go map that x merges y.

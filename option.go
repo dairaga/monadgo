@@ -1,164 +1,101 @@
 package monadgo
 
-import (
-	"fmt"
-	"reflect"
-)
+import "fmt"
 
-// Option represents Scala Option.
+// OptionOrElse is function type for Option.OrElse.
+type OptionOrElse func() Option
+
+// Option represents scala-like Option.
 type Option interface {
 	Any
-	// Traversable methods start
-	Forall(f interface{}) bool
-	Foreach(f interface{})
-	Fold(z, f interface{}) interface{}
-	// Traversable methods end
 
 	Defined() bool
+
 	Map(f interface{}) Option
 	FlatMap(f interface{}) Option
 
-	OrElse(z OptionOrElse) Option
-	GetOrElse(z interface{}) interface{}
+	Foreach(f interface{})
+	Forall(f interface{}) bool
+
+	Fold(z, f interface{}) interface{}
+
+	OrElse(OptionOrElse) Option
+	GetOrElse(f interface{}) interface{}
 }
 
-// OptionOrElse represents a alternative function for Option.OrElse.
-type OptionOrElse func() Option
-
-var optionCBF CanBuildFrom = func(v reflect.Value) reflect.Value {
-	if v == nothingValue {
-		return None
+// OptionOf returns a Option.
+func OptionOf(x interface{}) Option {
+	c, ok := x.(container)
+	if !ok {
+		c = containerOf(x)
 	}
 
-	return someFromValue(v)
-}
-
-// OptionOf ...
-func OptionOf(x interface{}) (result Option) {
-	defer func() {
-		if r := recover(); r != nil {
-			result = None
-		}
-	}()
-
-	if v, ok := checkFuncAndInvoke(x); ok {
-		return SomeOf(v)
-	}
-
-	return SomeOf(x)
+	return &traitOption{c}
 }
 
 // ----------------------------------------------------------------------------
 
-type _none struct {
+type traitOption struct {
 	container
 }
 
-// None respresents Scala None in Option.
-var None Option = &_none{containerFromValue(nothingValue)}
-var noneValue = reflect.ValueOf(None)
-
-func (n *_none) rv() reflect.Value {
-	return noneValue
+func (o *traitOption) String() string {
+	if o.empty {
+		return "None"
+	}
+	return fmt.Sprintf("Some(%v)", o.Get())
 }
 
-func (n *_none) String() string {
-	return "None"
+func (o *traitOption) Defined() bool {
+	return !o.empty
 }
 
-func (n *_none) Defined() bool {
-	return false
-}
+func (o *traitOption) Map(f interface{}) Option {
+	if !o.empty {
+		return &traitOption{o._map(f)}
+	}
 
-func (n *_none) Map(interface{}) Option {
 	return None
 }
 
-func (n *_none) FlatMap(interface{}) Option {
+func (o *traitOption) FlatMap(f interface{}) Option {
+	if !o.empty {
+		return o._flatMap(f).(Option)
+	}
+
 	return None
 }
 
-func (n *_none) Forall(interface{}) bool {
-	return false
-}
-
-func (n *_none) Foreach(interface{}) {
-
-}
-
-func (n *_none) Fold(z, _ interface{}) interface{} {
-	if x, ok := checkFuncAndInvoke(z); ok {
-		return x
-	}
-	return z
-}
-
-func (n *_none) GetOrElse(z interface{}) interface{} {
-	if x, ok := checkFuncAndInvoke(z); ok {
-		return x
+func (o *traitOption) Fold(z, f interface{}) interface{} {
+	if o.empty {
+		return checkAndInvoke(z)
 	}
 
-	return z
+	return o.invoke(f).Interface()
 }
 
-func (n *_none) OrElse(z OptionOrElse) Option {
-	return z()
-}
-
-// ----------------------------------------------------------------------------
-
-type _some struct {
-	container
-}
-
-var _ Option = _some{}
-
-func someFromValue(v reflect.Value) _some {
-	if !v.IsValid() {
-		v = nullValue
+func (o *traitOption) GetOrElse(z interface{}) interface{} {
+	if o.empty {
+		return checkAndInvoke(z)
 	}
 
-	return _some{containerFromValue(v)}
+	return o.Get()
 }
 
-// SomeOf returns Some of x.
+func (o *traitOption) OrElse(f OptionOrElse) Option {
+	if o.empty {
+		return f()
+	}
+
+	return o
+}
+
+// ------------------------------------------------
+
+// None represents scala-like None.
+var None Option = &traitOption{nothingContainer}
+
+// SomeOf returns Option, maybe None.
 func SomeOf(x interface{}) Option {
-	if x == null {
-		return someFromValue(nullValue)
-	}
-
-	switch v := x.(type) {
-	case reflect.Value:
-		return someFromValue(v)
-	default:
-		return someFromValue(reflect.ValueOf(x))
-	}
-}
-
-func (s _some) String() string {
-	return fmt.Sprintf("Some(%v)", s.Get())
-}
-
-func (s _some) Defined() bool {
-	return true
-}
-
-func (s _some) Map(f interface{}) Option {
-	return s.container._map(f, optionCBF).(Option)
-}
-
-func (s _some) FlatMap(f interface{}) Option {
-	return s.container.flatMap(f).(Option)
-}
-
-func (s _some) Fold(_, f interface{}) interface{} {
-	return s.container.invoke(f).Interface()
-}
-
-func (s _some) GetOrElse(interface{}) interface{} {
-	return s.Get()
-}
-
-func (s _some) OrElse(OptionOrElse) Option {
-	return s
+	return OptionOf(x)
 }

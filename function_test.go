@@ -5,6 +5,10 @@ import "fmt"
 func func0() {
 	fmt.Println("test")
 }
+func func00() fmt.Stringer {
+	return nil
+}
+
 func func01() int {
 	return 1
 }
@@ -29,6 +33,10 @@ func ExampleFuncOf0() {
 	v := f.invoke(unit)
 	fmt.Println(v)
 
+	f = funcOf(func00)
+	v = f.invoke(unit)
+	fmt.Println(v)
+
 	f = funcOf(func01)
 	v = f.invoke(unit)
 	fmt.Println(v)
@@ -51,7 +59,8 @@ func ExampleFuncOf0() {
 
 	// Output:
 	// test
-	// void
+	// Void
+	// Null
 	// 1
 	// (2,AB)
 	// (3,ABC,3.33)
@@ -110,7 +119,7 @@ func ExampleFuncOf1() {
 
 	// Output:
 	// test
-	// void
+	// Void
 	// 1
 	// (2,AB)
 	// (3,ABC,3.33)
@@ -169,7 +178,7 @@ func ExampleFuncOf2() {
 
 	// Output:
 	// test
-	// void
+	// Void
 	// 1
 	// (2,AB)
 	// (3,ABC,3.33)
@@ -191,6 +200,10 @@ func fold3(z []Pair, k, v int) []Pair {
 	return append(z, PairOf(k+1, v+1))
 }
 
+func fold4(k1, v1, k2, v2 int) []Pair {
+	return []Pair{PairOf(k1, v1), PairOf(k2, v2)}
+}
+
 func ExampleFoldOf() {
 
 	fw := foldOf(fold1)
@@ -205,20 +218,13 @@ func ExampleFoldOf() {
 	v = fw.fold([]Pair{}, PairOf(2, 4))
 	printGet(v)
 
+	fw = foldOf(fold4)
+	v = fw.fold(PairOf(1, 2), PairOf(3, 4))
+	printGet(v)
+
 	// Output:
 	// 11, int
 	// [(1,2)], []monadgo.Pair
 	// [(3,5)], []monadgo.Pair
-}
-
-func ExampleCheckFuncAndInvoke() {
-	a, ok := checkFuncAndInvoke(func() int { return 10 })
-	fmt.Println(a, ok)
-
-	a, ok = checkFuncAndInvoke(100.0)
-	fmt.Println(a, ok)
-
-	// Output:
-	// 10 true
-	// <nil> false
+	// [(1,2) (3,4)], []monadgo.Pair
 }

@@ -2,7 +2,6 @@ package monadgo
 
 // Traversable represents a scala-like Traversable trait.
 type Traversable interface {
-	Any
 	sequence
 
 	Size() int

@@ -10,9 +10,9 @@ func ExampleUnit() {
 	printGet(unit.Get())
 
 	// Output:
-	// void
-	// void, monadgo._unit
-	// void, monadgo._unit
+	// Void
+	// Void, monadgo._unit
+	// Void, monadgo._unit
 }
 
 func ExampleNull() {
@@ -21,8 +21,8 @@ func ExampleNull() {
 	printGet(null.Get())
 
 	// Output:
-	// null
-	// null, *monadgo._null
+	// Null
+	// Null, *monadgo._null
 	// <nil>, <nil>
 }
 
