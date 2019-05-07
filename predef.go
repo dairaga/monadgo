@@ -24,7 +24,7 @@ type Unit interface {
 	Any
 }
 
-type _unit bool
+type _unit struct{}
 
 func (u _unit) Get() interface{} {
 	return unit

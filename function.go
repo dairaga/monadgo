@@ -31,9 +31,9 @@ func funcOf(f interface{}) funcTR {
 
 	switch ftyp.NumIn() {
 	case 0: // input unit
-		resultF := reflect.FuncOf([]reflect.Type{typeUnit}, typeValues, false)
+		resultF := reflect.FuncOf([]reflect.Type{typeAny}, typeValues, false)
 		return funcTR{
-			in:  [2]reflect.Type{typeUnit},
+			in:  [2]reflect.Type{typeAny},
 			out: [1]reflect.Type{bindType(ftyp)},
 			x: reflect.MakeFunc(resultF, func(args []reflect.Value) []reflect.Value {
 				out := reflect.ValueOf(bindValues(ftyp, fval.Call(nil)))
@@ -75,9 +75,9 @@ func foldOf(f interface{}) funcTR {
 
 	switch ftyp.NumIn() {
 	case 1: // input (z) from f and unit.
-		resultF := reflect.FuncOf([]reflect.Type{ftyp.In(0), typeUnit}, typeValues, false)
+		resultF := reflect.FuncOf([]reflect.Type{ftyp.In(0), typeAny}, typeValues, false)
 		return funcTR{
-			in:  [2]reflect.Type{ftyp.In(0), typeUnit},
+			in:  [2]reflect.Type{ftyp.In(0), typeAny},
 			out: [1]reflect.Type{bindType(ftyp)},
 			x: reflect.MakeFunc(resultF, func(args []reflect.Value) []reflect.Value {
 				out := reflect.ValueOf(bindValues(ftyp, fval.Call(args[0:1])))

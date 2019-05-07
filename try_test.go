@@ -168,12 +168,12 @@ func ExampleTry_Foreach() {
 }
 
 func ExampleTry_Forall() {
-	v := TryOf(false).Forall(func() bool {
+	v := TryOf(false).Forall(func(Null) bool {
 		return true
 	})
 	printGet(v)
 
-	v = TryOf(nil).Forall(func() bool {
+	v = TryOf(nil).Forall(func(Null) bool {
 		return false
 	})
 	printGet(v)

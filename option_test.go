@@ -81,7 +81,7 @@ func ExampleOption_Foreach() {
 }
 
 func ExampleOption_Forall() {
-	v := OptionOf(nil).Forall(func() bool {
+	v := OptionOf(nil).Forall(func(Null) bool {
 		return true
 	})
 	fmt.Println(v)
@@ -166,7 +166,7 @@ func ExampleOption_GetOrElse() {
 func ExampleOption_Map() {
 	v := OptionOf(nil)
 
-	v = v.Map(func() {})
+	v = v.Map(func(Null) {})
 	printGet(v)
 
 	v = OptionOf(100)
@@ -190,7 +190,7 @@ func ExampleOption_Map() {
 func ExampleOption_FlatMap() {
 	v := OptionOf(nil)
 
-	v = v.FlatMap(func() Option {
+	v = v.FlatMap(func(Null) Option {
 		return None
 	})
 	printGet(v)

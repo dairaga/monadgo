@@ -8,13 +8,15 @@ var (
 )
 
 var (
-	unit      = _unit(false)
-	unitValue = reflect.ValueOf(unit)
-	typeUnit  = reflect.TypeOf((*Unit)(nil)).Elem()
+	typeAny = reflect.TypeOf((*Any)(nil)).Elem()
 
-	null      = &_null{}
-	nullValue = reflect.ValueOf(null)
-	typeNull  = reflect.TypeOf((*Null)(nil)).Elem()
+	unit      Unit = _unit{}
+	unitValue      = reflect.ValueOf(unit)
+	typeUnit       = reflect.TypeOf(unit)
+
+	null      Null = &_null{}
+	nullValue      = reflect.ValueOf(null)
+	typeNull       = reflect.TypeOf(null)
 
 	nothing      = &_nothing{null}
 	nothingValue = reflect.ValueOf(nothing)

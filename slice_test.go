@@ -138,6 +138,12 @@ func ExampleSlice_FlatMap() {
 	fmt.Println(s2)
 	printGet(s2.Get())
 
+	SliceOf([]int{1, 2, 3}).FlatMap(func(x int) {
+		SliceOf([]int{1, 2, 3}).Map(func(y int) {
+			fmt.Printf("%dx%d=%d\n", x, y, x*y)
+		})
+	})
+
 	// Output:
 	// [(1,11) (2,22) (1,111) (2,222)]
 	// [(1,11) (2,22) (1,111) (2,222)], []monadgo.Pair
@@ -145,6 +151,15 @@ func ExampleSlice_FlatMap() {
 	// [1 11 2 22 1 111 2 222], []int
 	// [(1,11) (2,22) (1,111) (2,222)]
 	// [(1,11) (2,22) (1,111) (2,222)], []monadgo.Pair
+	// 1x1=1
+	// 1x2=2
+	// 1x3=3
+	// 2x1=2
+	// 2x2=4
+	// 2x3=6
+	// 3x1=3
+	// 3x2=6
+	// 3x3=9
 }
 
 func ExampleSlice_Tail() {
