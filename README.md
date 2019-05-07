@@ -44,20 +44,22 @@ MonadGo is implements Scala monadic operations, like map, flatMap, fold, foreach
 
 [Option in Scala](https://www.scala-lang.org/api/current/scala/Option.html)
 
-## Try
+### Try
 
 **Try** represents Try in Scala. **Success** and **Failure** are subtypes of Try. TryOf or TryxOf returns Failure if last arguement is error or false because of no exception in GO.
 
 [Try in Scala](https://www.scala-lang.org/api/current/scala/util/Try.html)
 
-## Slice
+### Slice
 
 **Slice** wraps GO slice and implements monad functions like in List of Scala.
 
 [List in Scala](https://www.scala-lang.org/api/current/scala/collection/immutable/List.html)
 
-## Map
+### Map
 
 **Map** wraps Go map and implements monad functions like in Map of Scala.
 
 [Map in Scala](https://www.scala-lang.org/api/current/scala/collection/Map.html)
+
+
