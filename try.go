@@ -8,7 +8,7 @@ import (
 // TryOrElse is a function type for Try.OrElse.
 type TryOrElse func() Try
 
-// Try represents scala-like Try
+// Try represents scala-like Try.
 type Try interface {
 	Any
 
