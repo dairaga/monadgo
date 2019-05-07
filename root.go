@@ -21,6 +21,7 @@ var (
 	typeNothing  = reflect.TypeOf((*Nothing)(nil)).Elem()
 
 	nothings      = []Nothing{}
+	typeNothings  = reflect.TypeOf(nothings)
 	nothingsValue = reflect.ValueOf(nothings)
 
 	typeSeq = reflect.TypeOf((*sequence)(nil)).Elem()

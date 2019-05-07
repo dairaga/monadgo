@@ -222,3 +222,175 @@ func ExampleMap_Fold() {
 	// (5,45)
 	// (20,210), monadgo._pair
 }
+
+func ExampleMap_Reduce() {
+	m := MapOf(map[int]int{
+		1: 11,
+		2: 22,
+		3: 33,
+		4: 44,
+	})
+
+	printGet(m.Reduce(func(p1, p2 Pair) Pair {
+		return PairOf(
+			p1.Key().(int)+p2.Key().(int),
+			p1.Value().(int)+p2.Value().(int),
+		)
+	}))
+
+	printGet(m.Reduce(func(k1, v1, k2, v2 int) Pair {
+		return PairOf(k1+k2, v1+v2)
+	}))
+
+	// Output:
+	// (10,110), monadgo._pair
+	// (10,110), monadgo._pair
+}
+
+func ExampleMap_GroupBy() {
+	m := MapOf(map[int]int{
+		1: 11,
+		2: 22,
+		3: 33,
+		4: 44,
+	})
+
+	m2 := m.GroupBy(func(k, v int) int {
+		return v % 2
+	}).Get().(map[int]map[int]int)
+
+	for k, v := range m2 {
+		fmt.Println(k)
+
+		for k1, v1 := range v {
+			fmt.Println(k1, v1)
+		}
+	}
+
+	// Unordered Output:
+	// 0
+	// 2 22
+	// 4 44
+	// 1
+	// 1 11
+	// 3 33
+}
+
+func ExampleMap_Exists() {
+	m := MapOf(map[int]int{
+		1: 11,
+		2: 22,
+		3: 33,
+		4: 44,
+	})
+
+	printGet(m.Exists(func(k, v int) bool {
+		return (k+v)&1 == 1
+	}))
+
+	printGet(m.Exists(func(k, v int) bool {
+		return !((k+v)&1 == 1)
+	}))
+
+	// Output:
+	// false, bool
+	// true, bool
+}
+
+func ExampleMap_Find() {
+	m := MapOf(map[int]int{
+		1: 11,
+		2: 22,
+		3: 33,
+		4: 44,
+	})
+
+	printGet(m.Find(func(k, v int) bool {
+		return (k+v)&1 == 1
+	}))
+
+	printGet(m.Find(func(k, v int) bool {
+		return !((k+v)&1 == 1)
+	}))
+
+	// Output:
+	// None, *monadgo.traitOption
+	// Some((1,11)), *monadgo.traitOption
+}
+
+func ExampleMap_Filter() {
+	m := MapOf(map[int]int{
+		1: 11,
+		2: 22,
+		3: 33,
+		4: 44,
+	})
+
+	m1 := m.Filter(func(k, v int) bool {
+		return (k+v)&1 == 1
+	}).Get().(map[int]int)
+
+	for k, v := range m1 {
+		fmt.Println(k, v)
+	}
+
+	m1 = m.Filter(func(k, v int) bool {
+		return !((k+v)&1 == 1)
+	}).Get().(map[int]int)
+
+	for k, v := range m1 {
+		fmt.Println(k, v)
+	}
+
+	// Unordered Output:
+	// 1 11
+	// 2 22
+	// 3 33
+	// 4 44
+}
+
+func ExampleMap_Span() {
+	m := MapOf(map[int]int{
+		1: 11,
+		2: 22,
+		3: 33,
+		4: 44,
+	})
+
+	t := m.Span(func(k, v int) bool {
+		return (k+v)&1 == 1
+	})
+
+	fmt.Println("v1")
+	for k, v := range t.V1().(map[int]int) {
+		fmt.Println(k, v)
+	}
+	fmt.Println("v2")
+	for k, v := range t.V2().(map[int]int) {
+		fmt.Println(k, v)
+	}
+
+	// Unordered Output:
+	// v1
+	// 1 11
+	// 2 22
+	// 3 33
+	// 4 44
+	// v2
+}
+
+func ExampleMap_MkString() {
+	m := MapOf(map[int]int{
+		1: 11,
+		2: 22,
+		3: 33,
+		4: 44,
+	})
+
+	fmt.Println(m.MkString("", "\n", "\n"))
+	// Unordered Output:
+	// (1,11)
+	// (2,22)
+	// (3,33)
+	// (4,44)
+}

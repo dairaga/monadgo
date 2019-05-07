@@ -6,6 +6,26 @@ type Slice interface {
 
 	Len() int
 	Cap() int
+
+	Head() interface{}
+
+	HeadOption() Option
+
+	Tail() Traversable
+
+	Take(n int) Traversable
+
+	TakeWhile(f interface{}) Traversable
+
+	Drop(n int) Traversable
+
+	IndexWhere(f interface{}, start int) int
+
+	LastIndexWhere(f interface{}, end int) int
+
+	Reverse() Traversable
+
+	Scan(z, f interface{}) Traversable
 }
 
 type slice = seq

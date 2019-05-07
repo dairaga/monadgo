@@ -61,5 +61,3 @@ MonadGo is implements Scala monadic operations, like map, flatMap, fold, foreach
 **Map** wraps Go map and implements monad functions like in Map of Scala.
 
 [Map in Scala](https://www.scala-lang.org/api/current/scala/collection/Map.html)
-
-

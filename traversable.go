@@ -18,40 +18,19 @@ type Traversable interface {
 
 	// Fold folds the elements using specified associative binary operator.
 	Fold(z, f interface{}) interface{}
-	/*
-		Head() interface{}
 
-		Tail() Traversable
+	// Reduce reduces the elements of this iterable collection using the specified associative binary operator.
+	Reduce(f interface{}) interface{}
 
-		// Reduce reduces the elements of this iterable collection using the specified associative binary operator.
-		Reduce(f interface{}) interface{}
+	GroupBy(f interface{}) Map
 
-		Scan(z, f interface{}) Traversable
+	Exists(f interface{}) bool
 
-		GroupBy(f interface{}) Map
+	Find(f interface{}) Option
 
-		Take(n int) Traversable
+	Filter(f interface{}) Traversable
 
-		TakeWhile(f interface{}) Traversable
+	MkString(start, sep, end string) string
 
-		Drop(n int) Traversable
-
-		Exists(f interface{}) bool
-
-		Filter(f interface{}) Traversable
-
-		Find(f interface{}) Option
-
-		IndexWhere(f interface{}, start int) int
-
-		LastIndexWhere(f interface{}, end int) int
-
-		IsEmpty() bool
-
-		MkString(start, sep, end string) string
-
-		Reverse() Traversable
-
-		Span(f interface{}) Pair // PairOf Traversable
-	*/
+	Span(f interface{}) Tuple2
 }

@@ -146,3 +146,284 @@ func ExampleSlice_FlatMap() {
 	// [(1,11) (2,22) (1,111) (2,222)]
 	// [(1,11) (2,22) (1,111) (2,222)], []monadgo.Pair
 }
+
+func ExampleSlice_Tail() {
+	s := SliceOf([]int{1, 2, 3, 4, 5}).Tail()
+	printGet(s.Get())
+
+	s = SliceOf([5]int{1, 2, 3, 4, 5}).Tail()
+	printGet(s.Get())
+
+	// Output:
+	// [2 3 4 5], []int
+	// [2 3 4 5], []int
+
+}
+
+func ExampleSlice_Reduce() {
+	sum := SliceOf([]int{1, 2, 3, 4, 5}).Reduce(func(x1, x2 int) int {
+		return x1 + x2
+	})
+	fmt.Println(sum)
+
+	sum = SliceOf([5]int{1, 2, 3, 4, 5}).Reduce(func(x1, x2 int) int {
+		return x1 * x2
+	})
+
+	fmt.Println(sum)
+
+	// Output:
+	// 15
+	// 120
+}
+
+func ExampleSlice_Scan() {
+	s := SliceOf([]int{1, 2, 3, 4, 5}).Scan(10, func(a, b int) int {
+		return a * b
+	})
+
+	printGet(s.Get())
+
+	// Output:
+	// [10 10 20 60 240 1200], []int
+}
+
+func ExampleSlice_GroupBy() {
+	m := SliceOf([]int{1, 2, 3, 4, 5}).GroupBy(func(x int) int {
+		return x % 2
+	}).Get().(map[int][]int)
+
+	for k, v := range m {
+		printGet(k)
+		printGet(v)
+	}
+
+	// Unordered Output:
+	// 1, int
+	// [1 3 5], []int
+	// 0, int
+	// [2 4], []int
+}
+
+func ExampleSlice_Take() {
+	s := SliceOf([]int{1, 2, 3, 4, 5}).Take(3)
+	printGet(s.Get())
+
+	// Output:
+	// [1 2 3], []int
+}
+
+func ExampleSlice_TakeWhile() {
+	s := SliceOf([]int{1, 2, 3, 4, 5}).TakeWhile(func(x int) bool {
+		return x <= 3
+	})
+	printGet(s.Get())
+
+	s = SliceOf([]int{1, 2, 3, 4, 5}).TakeWhile(func(x int) bool {
+		return x > 0
+	})
+	printGet(s.Get())
+
+	s = SliceOf([]int{1, 2, 3, 4, 5}).TakeWhile(func(x int) bool {
+		return x > 10
+	})
+	printGet(s.Get())
+
+	// Output:
+	// [1 2 3], []int
+	// [1 2 3 4 5], []int
+	// [], []int
+}
+
+func ExampleSlice_Head() {
+	s := SliceOf([]int{})
+	printGet(s.Head())
+
+	s = SliceOf([]int{1, 2, 3, 4, 5})
+	printGet(s.Head())
+
+	// Output:
+	// <nil>, <nil>
+	// 1, int
+}
+
+func ExampleSlice_HeadOption() {
+	s := SliceOf([]int{})
+	printGet(s.HeadOption())
+
+	s = SliceOf([]int{1, 2, 3, 4, 5})
+	printGet(s.HeadOption())
+
+	// Output:
+	// None, *monadgo.traitOption
+	// Some(1), *monadgo.traitOption
+}
+
+func ExampleSlice_Drop() {
+	s := SliceOf([]int{})
+	printGet(s.Drop(10).Get())
+
+	s = SliceOf([]int{1, 2, 3, 4, 5})
+	printGet(s.Drop(2).Get())
+	printGet(s.Drop(s.Len() + 1).Get())
+
+	// Output:
+	// [], []int
+	// [3 4 5], []int
+	// [], []int
+}
+
+func ExampleSlice_Exists() {
+	s := SliceOf([]int{})
+	printGet(s.Exists(func(x int) bool {
+		return x > 3
+	}))
+
+	s = SliceOf([]int{1, 2, 3, 4, 5})
+	printGet(s.Exists(func(x int) bool {
+		return x > 3
+	}))
+
+	printGet(s.Exists(func(x int) bool {
+		return x > 10
+	}))
+
+	// Output:
+	// false, bool
+	// true, bool
+	// false, bool
+}
+
+func ExampleSlice_Find() {
+	s := SliceOf([]int{})
+	printGet(s.Find(func(x int) bool {
+		return x > 3
+	}))
+
+	s = SliceOf([]int{1, 2, 3, 4, 5})
+	printGet(s.Find(func(x int) bool {
+		return x > 3
+	}))
+
+	printGet(s.Find(func(x int) bool {
+		return x > 10
+	}))
+
+	// Output:
+	// None, *monadgo.traitOption
+	// Some(4), *monadgo.traitOption
+	// None, *monadgo.traitOption
+}
+
+func ExampleSlice_Filter() {
+	s := SliceOf([]int{})
+	printGet(s.Filter(func(x int) bool {
+		return x > 3
+	}))
+
+	s = SliceOf([]int{1, 2, 3, 4, 5})
+	printGet(s.Filter(func(x int) bool {
+		return x > 3
+	}))
+
+	printGet(s.Filter(func(x int) bool {
+		return x > 10
+	}))
+
+	// Output:
+	// [], monadgo.seq
+	// [4 5], monadgo.seq
+	// [], monadgo.seq
+}
+
+func ExampleSlice_IndexWhere() {
+	s := SliceOf([]int{})
+	printGet(s.IndexWhere(func(x int) bool {
+		return x > 3
+	}, 100))
+
+	s = SliceOf([]int{1, 2, 3, 4, 5})
+	printGet(s.IndexWhere(func(x int) bool {
+		return x > 2
+	}, 3))
+
+	printGet(s.IndexWhere(func(x int) bool {
+		return x > 2
+	}, -1))
+
+	printGet(s.IndexWhere(func(x int) bool {
+		return x > 2
+	}, 100))
+
+	// Output:
+	// -1, int
+	// 3, int
+	// 2, int
+	// -1, int
+}
+
+func ExampleSlice_LastIndexWhere() {
+	s := SliceOf([]int{})
+	printGet(s.LastIndexWhere(func(x int) bool {
+		return x > 3
+	}, 100))
+
+	s = SliceOf([]int{1, 2, 3, 4, 5})
+	printGet(s.LastIndexWhere(func(x int) bool {
+		return x > 2
+	}, 3))
+
+	printGet(s.LastIndexWhere(func(x int) bool {
+		return x > 3
+	}, 2))
+
+	printGet(s.LastIndexWhere(func(x int) bool {
+		return x > 2
+	}, 100))
+
+	// Output:
+	// -1, int
+	// 3, int
+	// -1, int
+	// 4, int
+}
+
+func ExampleSlice_MkString() {
+	s := SliceOf([]int{})
+	printGet(s.MkString("<", ":", ">"))
+
+	s = SliceOf([]int{1, 2, 3, 4, 5})
+	printGet(s.MkString("<", ":", ">"))
+
+	// Output:
+	// <>, string
+	// <1:2:3:4:5:>, string
+}
+
+func ExampleSlice_Reverse() {
+	s := SliceOf([]int{})
+	printGet(s.Reverse().Get())
+
+	s = SliceOf([]int{1, 2, 3, 4, 5})
+	printGet(s.Reverse().Get())
+
+	// Output:
+	// [], []int
+	// [5 4 3 2 1], []int
+}
+
+func ExampleSlice_Span() {
+	s := SliceOf([]int{})
+	printGet(s.Span(func(x int) bool {
+		return x >= 2
+	}))
+
+	s = SliceOf([]int{1, 2, 3, 4, 5})
+	printGet(s.Span(func(x int) bool {
+		return x >= 2
+	}))
+
+	// Output:
+	// ([],[]), monadgo._tuple2
+	// ([1],[2 3 4 5]), monadgo._tuple2
+}

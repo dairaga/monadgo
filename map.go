@@ -11,11 +11,29 @@ type Map interface {
 	Traversable
 }
 
-type _map reflect.Value
+type _map struct {
+	ktype reflect.Type
+	vtype reflect.Type
+	v     reflect.Value
+}
 
 var _ Map = _map{}
 
-func mapCBF(t Traversable) Traversable {
+func mapCBF(k, v reflect.Type, x interface{}) Traversable {
+	xtyp := reflect.TypeOf(x)
+	if xtyp.Kind() == reflect.Slice {
+		return mapCBF(k, v, seqOf(x))
+	}
+
+	t := x.(Traversable)
+	if t.Size() <= 0 {
+		return _map{
+			ktype: k,
+			vtype: v,
+			v:     makeMap(k, v, 0),
+		}
+	}
+
 	if t.rv().Type().Elem().Implements(typePair) {
 		var ret reflect.Value
 		v := t.rv()
@@ -77,17 +95,26 @@ func MapOf(x interface{}) Map {
 }
 
 func newMap(v reflect.Value) Map {
-	return _map(v)
+	t := v.Type()
+	return _map{
+		ktype: t.Key(),
+		vtype: t.Elem(),
+		v:     v,
+	}
 }
 
 // ----------------------------------------------------------------------------
 
+func (m _map) mapCBF(x interface{}) Traversable {
+	return mapCBF(m.ktype, m.vtype, x)
+}
+
 func (m _map) Get() interface{} {
-	return reflect.Value(m).Interface()
+	return m.v.Interface()
 }
 
 func (m _map) rv() reflect.Value {
-	return reflect.Value(m)
+	return m.v
 }
 
 func (m _map) String() string {
@@ -105,22 +132,22 @@ func (m _map) toSeq() seq {
 }
 
 func (m _map) Size() int {
-	return reflect.Value(m).Len()
+	return m.v.Len()
 }
 
 func (m _map) Range() *PairIter {
-	return newPairIter(reflect.Value(m))
+	return newPairIter(m.v)
 }
 
 func (m _map) Map(f interface{}) Traversable {
 	ret := m.toSeq().Map(f)
 
-	return mapCBF(ret)
+	return m.mapCBF(ret)
 }
 
 func (m _map) FlatMap(f interface{}) Traversable {
 	ret := m.toSeq().FlatMap(f)
-	return mapCBF(ret)
+	return m.mapCBF(ret)
 }
 
 func (m _map) Fold(z, f interface{}) interface{} {
@@ -135,4 +162,39 @@ func (m _map) Forall(f interface{}) bool {
 	return m.toSeq().Forall(f)
 }
 
-// ----------------------------------------------------------------------------
+func (m _map) Reduce(f interface{}) interface{} {
+	return m.toSeq().Reduce(f)
+}
+
+func (m _map) GroupBy(f interface{}) Map {
+	x := m.toSeq().GroupBy(f)
+	x2 := x.Map(func(p Pair) Pair {
+		return PairOf(p.Key(), MapOf(p.Value()).Get())
+	})
+
+	return x2.(Map)
+}
+
+func (m _map) Exists(f interface{}) bool {
+	return m.toSeq().Exists(f)
+}
+
+func (m _map) Find(f interface{}) Option {
+	return m.toSeq().Find(f)
+}
+
+func (m _map) Filter(f interface{}) Traversable {
+	return m.mapCBF(m.toSeq().Filter(f))
+}
+
+func (m _map) MkString(start, sep, end string) string {
+	return m.toSeq().MkString(start, sep, end)
+}
+
+func (m _map) Span(f interface{}) Tuple2 {
+	t2 := m.toSeq().Span(f)
+	return Tuple2Of(
+		m.mapCBF(t2.V1()).Get(),
+		m.mapCBF(t2.V2()).Get(),
+	)
+}
