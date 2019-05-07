@@ -17,6 +17,10 @@ func ExampleSliceOf() {
 	fmt.Println(s.Len())
 	fmt.Println(s.Cap())
 
+	s = SliceOf(101)
+	printGet(s.Get())
+	fmt.Println(s.Len())
+	fmt.Println(s.Cap())
 	// Output:
 	// [1 2 3 4 5]
 	// [1 2 3 4 5], []int
@@ -26,6 +30,9 @@ func ExampleSliceOf() {
 	// [1 2 3 4 5 6], []int
 	// 6
 	// 6
+	// [101], []int
+	// 1
+	// 1
 }
 
 func ExampleSlice_Foreach() {

@@ -62,12 +62,8 @@ func seqFromValue(v reflect.Value) seq {
 
 	z := makeSlice(v.Type(), 1, 1)
 	z.Index(0).Set(v)
-	return seq{
-		x:   z.Interface(),
-		v:   z,
-		len: v.Len(),
-		cap: v.Cap(),
-	}
+	return seqFromValue(z)
+
 }
 
 func seqOf(x interface{}) seq {
