@@ -77,3 +77,44 @@ func (n *_nothing) rv() reflect.Value {
 func (n *_nothing) String() string {
 	return "Nothing"
 }
+
+// ----------------------------------------------------------------------------
+
+// PartialFunc represents scala-like PartailFunction.
+type PartialFunc struct {
+	condition funcTR
+	action    funcTR
+}
+
+// PartialFuncOf returns a partail function for monandgo.
+func PartialFuncOf(c, a interface{}) PartialFunc {
+	return PartialFunc{
+		condition: funcOf(c),
+		action:    funcOf(a),
+	}
+
+}
+
+// DefinedAt returns x is defined at p or not.
+func (p PartialFunc) DefinedAt(x interface{}) bool {
+	return p.condition.invoke(x).(bool)
+}
+
+func (p PartialFunc) definedAtV(v reflect.Value) bool {
+	return p.condition.call(v).Bool()
+}
+
+// Call invokes action on x, returns Nothing if x is not defined in p.
+func (p PartialFunc) Call(x interface{}) interface{} {
+	if p.DefinedAt(x) {
+		return p.action.invoke(x)
+	}
+	return nothing
+}
+
+func (p PartialFunc) callV(v reflect.Value) reflect.Value {
+	if p.definedAtV(v) {
+		return p.action.call(v)
+	}
+	return nothingValue
+}

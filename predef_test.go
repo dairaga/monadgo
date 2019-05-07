@@ -34,3 +34,25 @@ func ExampleNothing() {
 	// Nothing
 	// Nothing, *monadgo._nothing
 }
+
+func ExamplePartialFuncOf() {
+	p := PartialFuncOf(
+		func(x int) bool {
+			return x > 100
+		},
+		func(x int) string {
+			return fmt.Sprintf("%d", x*x)
+		},
+	)
+
+	printGet(p.DefinedAt(101))
+	printGet(p.Call(101))
+	printGet(p.DefinedAt(10))
+	printGet(p.Call(100))
+
+	// output:
+	// true, bool
+	// 10201, string
+	// false, bool
+	// Nothing, *monadgo._nothing
+}
