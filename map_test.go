@@ -311,11 +311,11 @@ func ExampleMap_Find() {
 
 	printGet(m.Find(func(k, v int) bool {
 		return !((k+v)&1 == 1)
-	}))
+	}).Defined())
 
 	// Output:
 	// None, *monadgo.traitOption
-	// Some((1,11)), *monadgo.traitOption
+	// true, bool
 }
 
 func ExampleMap_Filter() {
