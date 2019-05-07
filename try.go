@@ -139,9 +139,9 @@ func tryFromContainer(c container, ok bool) Try {
 	}
 }
 
-func tryFromX(x interface{}) Try {
+/*func tryFromX(x interface{}) Try {
 	return tryFromContainer(containerOf(x), !isErrorOrFalse(x))
-}
+}*/
 
 // isErrorOrFalse checks x is an existing error or false.
 func isErrorOrFalse(x interface{}) bool {
