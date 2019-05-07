@@ -145,10 +145,6 @@ func (s seq) FlatMap(f interface{}) Traversable {
 		ret = mergeSlice(ret, seqFromValue(result).v)
 	}
 
-	if elm == typePair {
-		return mapFromValue(ret)
-	}
-
 	return SliceOf(ret)
 }
 
@@ -171,6 +167,10 @@ func (s seq) Forall(f interface{}) bool {
 
 // Foreach applies f to all element.
 func (s seq) Foreach(f interface{}) {
+	if s.len <= 0 {
+		return
+	}
+
 	fw := funcOf(f)
 
 	for i := 0; i < s.len; i++ {
