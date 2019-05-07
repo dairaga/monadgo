@@ -47,12 +47,15 @@ func mapFromValue(v reflect.Value) Map {
 			ret = mergeMap(ret, v.Index(i))
 		}
 
-		return newMap(v)
+		return newMap(ret)
 	}
 
 	if v.Type().Implements(typePair) {
-		p := v.Interface().(Pair)
-		return newMap(makeMap(p.T1(), p.T2(), -1))
+		return newMap(oneToMap(v))
+	}
+
+	if v.Type().Implements(typeSeq) {
+		return mapFromValue(v.Interface().(sequence).rv())
 	}
 
 	panic(fmt.Sprintf("%v can not convert to map", v.Interface()))

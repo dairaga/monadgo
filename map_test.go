@@ -14,9 +14,22 @@ func ExampleMapOf() {
 	})
 	fmt.Println(m)
 	printGet(m.Get())
+
+	m = MapOf([]Pair{PairOf("a", 11), PairOf("b", 22)})
+	printGet(m.Get())
+
+	m = MapOf(PairOf("a", 11))
+	printGet(m.Get())
+
+	m = MapOf(seqOf([]Pair{PairOf("a", 11), PairOf("b", 22)}))
+	printGet(m.Get())
+
 	// Output:
 	// map[]
 	// map[a:11 b:22]
+	// map[a:11 b:22], map[string]int
+	// map[a:11 b:22], map[string]int
+	// map[a:11], map[string]int
 	// map[a:11 b:22], map[string]int
 }
 
