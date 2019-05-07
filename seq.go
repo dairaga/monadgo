@@ -430,3 +430,19 @@ func (s seq) Span(f interface{}) Tuple2 {
 
 	return Tuple2Of(left.Interface(), right.Interface())
 }
+
+func (s seq) Collect(pf PartialFunc) Traversable {
+	ret := makeSlice(pf.action.out[0], 0, 0)
+	if s.len <= 0 {
+		return seqFromValue(ret)
+	}
+
+	for i := 0; i < s.len; i++ {
+		result := pf.Call(s.v.Index(i))
+		if result != nothingValue {
+			ret = appendSlice(ret, result)
+		}
+	}
+
+	return seqFromValue(ret)
+}

@@ -198,3 +198,7 @@ func (m _map) Span(f interface{}) Tuple2 {
 		m.mapCBF(t2.V2()).Get(),
 	)
 }
+
+func (m _map) Collect(pf PartialFunc) Traversable {
+	return m.mapCBF(m.toSeq().Collect(pf))
+}

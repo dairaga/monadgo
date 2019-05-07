@@ -33,4 +33,6 @@ type Traversable interface {
 	MkString(start, sep, end string) string
 
 	Span(f interface{}) Tuple2
+
+	Collect(pf PartialFunc) Traversable
 }

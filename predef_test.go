@@ -2,6 +2,7 @@ package monadgo
 
 import (
 	"fmt"
+	"reflect"
 )
 
 func ExampleUnit() {
@@ -45,10 +46,10 @@ func ExamplePartialFuncOf() {
 		},
 	)
 
-	printGet(p.DefinedAt(101))
-	printGet(p.Call(101))
-	printGet(p.DefinedAt(10))
-	printGet(p.Call(100))
+	printGet(p.DefinedAt(reflect.ValueOf(101)))
+	printGet(p.Call(reflect.ValueOf(101)).Interface())
+	printGet(p.DefinedAt(reflect.ValueOf(10)))
+	printGet(p.Call(reflect.ValueOf(100)).Interface())
 
 	// output:
 	// true, bool

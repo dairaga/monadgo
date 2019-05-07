@@ -96,24 +96,13 @@ func PartialFuncOf(c, a interface{}) PartialFunc {
 }
 
 // DefinedAt returns x is defined at p or not.
-func (p PartialFunc) DefinedAt(x interface{}) bool {
-	return p.condition.invoke(x).(bool)
-}
-
-func (p PartialFunc) definedAtV(v reflect.Value) bool {
+func (p PartialFunc) DefinedAt(v reflect.Value) bool {
 	return p.condition.call(v).Bool()
 }
 
 // Call invokes action on x, returns Nothing if x is not defined in p.
-func (p PartialFunc) Call(x interface{}) interface{} {
-	if p.DefinedAt(x) {
-		return p.action.invoke(x)
-	}
-	return nothing
-}
-
-func (p PartialFunc) callV(v reflect.Value) reflect.Value {
-	if p.definedAtV(v) {
+func (p PartialFunc) Call(v reflect.Value) reflect.Value {
+	if p.DefinedAt(v) {
 		return p.action.call(v)
 	}
 	return nothingValue

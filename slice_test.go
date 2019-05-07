@@ -442,3 +442,30 @@ func ExampleSlice_Span() {
 	// ([],[]), monadgo._tuple2
 	// ([1],[2 3 4 5]), monadgo._tuple2
 }
+
+func ExampleSlice_Collect() {
+	s := SliceOf([]int{})
+
+	pf := PartialFuncOf(func(x int) bool {
+		return x > 3
+	}, func(x int) string {
+		return fmt.Sprintf("%d", x*x)
+	})
+
+	printGet(s.Collect(pf))
+
+	s = SliceOf([]int{1, 2, 3, 4, 5})
+	printGet(s.Collect(pf))
+
+	pf = PartialFuncOf(func(x int) bool {
+		return x > 10
+	}, func(x int) string {
+		return fmt.Sprintf("%d", x*x)
+	})
+	printGet(s.Collect(pf))
+
+	// Output:
+	// [], monadgo.seq
+	// [16 25], monadgo.seq
+	// [], monadgo.seq
+}

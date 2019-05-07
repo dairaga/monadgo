@@ -394,3 +394,41 @@ func ExampleMap_MkString() {
 	// (3,33)
 	// (4,44)
 }
+
+func ExampleMap_Collect() {
+	m := MapOf(map[int]int{
+		1: 11,
+		2: 22,
+		3: 33,
+		4: 44,
+	})
+	pf := PartialFuncOf(func(k, v int) bool {
+		return (k+v)&1 == 1
+	}, func(p Pair) Pair {
+		return p
+	})
+
+	m1 := m.Collect(pf).Get().(map[int]int)
+
+	for k, v := range m1 {
+		fmt.Println(k, v)
+	}
+
+	pf = PartialFuncOf(func(k, v int) bool {
+		return !((k+v)&1 == 1)
+	}, func(p Pair) Pair {
+		return p
+	})
+
+	m1 = m.Collect(pf).Get().(map[int]int)
+
+	for k, v := range m1 {
+		fmt.Println(k, v)
+	}
+
+	// Unordered Output:
+	// 1 11
+	// 2 22
+	// 3 33
+	// 4 44
+}
