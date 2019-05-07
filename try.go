@@ -169,6 +169,7 @@ func SuccessOf(x interface{}) Try {
 	return tryFromContainer(containerOf(x), true)
 }
 
+/*
 // tryFromTuple return a Try from Tuple.
 func tryFromTuple(t Tuple) Try {
 	x := t.V(t.Dimension() - 1)
@@ -191,6 +192,7 @@ func tryFromTuple(t Tuple) Try {
 
 	return SuccessOf(t.V(0))
 }
+*/
 
 // TryOf returns a Try with one parameter.
 // errOrFalse must be bool or error type.
