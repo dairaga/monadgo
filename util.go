@@ -107,7 +107,7 @@ func oneToMap(x reflect.Value) reflect.Value {
 	} else if x.Kind() == reflect.Map {
 		return x
 	}
-	return reflect.Value{}
+	return nothingValue
 }
 
 // mergeKeyValue returns a reflect.Value of go map that add k->v to m.
