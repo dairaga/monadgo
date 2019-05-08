@@ -59,7 +59,7 @@ func (e *traitEither) Forall(f interface{}) bool {
 		return true
 	}
 
-	return e.Forall(f)
+	return e.container.Forall(f)
 }
 
 func (e *traitEither) FilterOrElse(p, z interface{}) Either {
@@ -84,7 +84,7 @@ func (e *traitEither) Exists(f interface{}) bool {
 
 func (e *traitEither) Foreach(f interface{}) {
 	if e.IsRight() {
-		e.Foreach(f)
+		e.container.Foreach(f)
 	}
 }
 
@@ -140,7 +140,7 @@ func newEither(right bool, x ...interface{}) Either {
 	case 0:
 		return eitherFromContainer(right, nothingContainer)
 	case 1:
-		return eitherFromContainer(right, containerOf(x))
+		return eitherFromContainer(right, containerOf(x[0]))
 	default:
 		return eitherFromContainer(right, containerOf(TupleOf(x)))
 	}
