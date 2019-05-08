@@ -16,7 +16,6 @@ type Try interface {
 	Failed() bool
 
 	// Traversable methods start
-	Forall(f interface{}) bool
 	Foreach(f interface{})
 	Fold(z, f interface{}) interface{}
 	// Traversable methods end
@@ -48,14 +47,6 @@ func (t *traitTry) OK() bool {
 
 func (t *traitTry) Failed() bool {
 	return !t.ok
-}
-
-func (t *traitTry) Forall(f interface{}) bool {
-	if !t.ok {
-		return false
-	}
-
-	return t.container.Forall(f)
 }
 
 func (t *traitTry) Foreach(f interface{}) {

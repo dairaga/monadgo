@@ -167,34 +167,6 @@ func ExampleTry_Foreach() {
 	// 100, int
 }
 
-func ExampleTry_Forall() {
-	v := TryOf(false).Forall(func(Null) bool {
-		return true
-	})
-	printGet(v)
-
-	v = TryOf(nil).Forall(func(Null) bool {
-		return false
-	})
-	printGet(v)
-
-	v = Try1Of("ABC", true).Forall(func(x string) bool {
-		return len(x) < 2
-	})
-	printGet(v)
-
-	v = Try2Of("ABC", 10, true).Forall(func(x1 string, x2 int) bool {
-		return len(x1) > 2 && x2 > 5
-	})
-	printGet(v)
-
-	// Output:
-	// false, bool
-	// false, bool
-	// false, bool
-	// true, bool
-}
-
 func ExampleTry_Fold() {
 	v := TryOf(false).Fold(func(bool) int {
 		return 100
