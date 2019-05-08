@@ -422,8 +422,8 @@ func ExampleMap_Collect() {
 
 	s1 := m.Collect(pf).Get().([]int)
 
-	for i, v := range s1 {
-		fmt.Println(i, v)
+	for _, v := range s1 {
+		fmt.Println(v)
 	}
 
 	pf = PartialFuncOf(func(k, v int) bool {
@@ -439,10 +439,10 @@ func ExampleMap_Collect() {
 	}
 
 	// Unordered Output:
-	// 0 12
-	// 1 24
-	// 2 36
-	// 3 48
+	// 12
+	// 24
+	// 36
+	// 48
 	// 1 11
 	// 2 22
 	// 3 33
