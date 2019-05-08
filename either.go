@@ -192,22 +192,38 @@ func RightOf(x ...interface{}) Either {
 	return newEither(true, x...)
 }
 
-// EitherOf returns a Either with one parameter.
-// errOrFalse must be bool or error type.
+// EitherOf returns a Either.
+// The last argument must be bool or error type.
 // Return Left if errOrFalse is false or error existing,
 // or Right of Null.
-func EitherOf(errOrFalse interface{}) Either {
-	if isErrorOrFalse(errOrFalse) {
-		return LeftOf(errOrFalse)
+func EitherOf(x ...interface{}) Either {
+	switch len(x) {
+	case 0:
+		return RightOf(unit)
+	case 1:
+		if isErrorOrFalse(x[0]) {
+			return LeftOf(x[0])
+		}
+		return RightOf(x[0])
+	case 2:
+		return either1Of(x[0], x[1])
+	case 3:
+		return either2Of(x[0], x[1], x[2])
+	default:
+		t := TupleOf(x)
+		last := t.V(t.Dimension() - 1)
+		if isErrorOrFalse(last) {
+			return LeftOf(last)
+		}
+		return RightOf(t.reduce())
 	}
-	return RightOf(errOrFalse)
 }
 
-// Either1Of returns a Either.
+// either1Of returns a Either.
 // errOrFalse must be bool or error type.
 // Return Left if errOrFalse is false or error existing,
 // or Right of x.
-func Either1Of(x, errOrFalse interface{}) Either {
+func either1Of(x, errOrFalse interface{}) Either {
 	if isErrorOrFalse(errOrFalse) {
 		return LeftOf(errOrFalse)
 	}
@@ -215,11 +231,11 @@ func Either1Of(x, errOrFalse interface{}) Either {
 	return RightOf(x)
 }
 
-// Either2Of returns a Try.
+// either2Of returns a Try.
 // errOrFalse must be bool or error type.
 // Return Left if errOrFalse is false or error existing,
 // or Right of Tuple2(x1,x2).
-func Either2Of(x1, x2, errOrFalse interface{}) Either {
+func either2Of(x1, x2, errOrFalse interface{}) Either {
 	if isErrorOrFalse(errOrFalse) {
 		return LeftOf(errOrFalse)
 	}

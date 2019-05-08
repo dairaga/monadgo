@@ -210,22 +210,39 @@ func tryFromTuple(t Tuple) Try {
 }
 */
 
-// TryOf returns a Try with one parameter.
-// errOrFalse must be bool or error type.
+// TryOf returns a Try.
+// The last argument must be bool or error type.
 // Return Failure if errOrFalse is false or error existing,
 // or Success of Null.
-func TryOf(errOrFalse interface{}) Try {
-	if isErrorOrFalse(errOrFalse) {
-		return FailureOf(errOrFalse)
+func TryOf(x ...interface{}) Try {
+	switch len(x) {
+	case 0:
+		return SuccessOf(unit)
+	case 1:
+		if isErrorOrFalse(x[0]) {
+			return FailureOf(x[0])
+		}
+		return SuccessOf(x[0])
+	case 2:
+		return try1Of(x[0], x[1])
+	case 3:
+		return try2Of(x[0], x[1], x[2])
+	default:
+		t := TupleOf(x)
+		last := t.V(t.Dimension() - 1)
+		if isErrorOrFalse(last) {
+			return FailureOf(last)
+		}
+		return SuccessOf(t.reduce())
 	}
-	return SuccessOf(errOrFalse)
+
 }
 
-// Try1Of returns a Try.
+// try1Of returns a Try.
 // errOrFalse must be bool or error type.
 // Return Failure if errOrFalse is false or error existing,
 // or Success of x.
-func Try1Of(x, errOrFalse interface{}) Try {
+func try1Of(x, errOrFalse interface{}) Try {
 	if isErrorOrFalse(errOrFalse) {
 		return FailureOf(errOrFalse)
 	}
@@ -233,11 +250,11 @@ func Try1Of(x, errOrFalse interface{}) Try {
 	return SuccessOf(x)
 }
 
-// Try2Of returns a Try.
+// try2Of returns a Try.
 // errOrFalse must be bool or error type.
 // Return Failure if errOrFalse is false or error existing,
 // or Success of Tuple2(x1,x2).
-func Try2Of(x1, x2, errOrFalse interface{}) Try {
+func try2Of(x1, x2, errOrFalse interface{}) Try {
 	if isErrorOrFalse(errOrFalse) {
 		return FailureOf(errOrFalse)
 	}

@@ -29,31 +29,31 @@ func ExampleTryOf() {
 }
 
 func ExampleTry1Of() {
-	t := Try1Of(100, nil)
+	t := TryOf(100, nil)
 	fmt.Println(t.OK())
 	fmt.Println(t.Failed())
 	printGet(t)
 	printGet(t.Get())
 
-	t = Try1Of(10, true)
+	t = TryOf(10, true)
 	fmt.Println(t.OK())
 	fmt.Println(t.Failed())
 	printGet(t)
 	printGet(t.Get())
 
-	t = Try1Of(0, fmt.Errorf("error"))
+	t = TryOf(0, fmt.Errorf("error"))
 	fmt.Println(t.OK())
 	fmt.Println(t.Failed())
 	printGet(t)
 	printGet(t.Get())
 
-	t = Try1Of(0, false)
+	t = TryOf(0, false)
 	fmt.Println(t.OK())
 	fmt.Println(t.Failed())
 	printGet(t)
 	printGet(t.Get())
 
-	t = Try1Of(nil, true)
+	t = TryOf(nil, true)
 	fmt.Println(t.OK())
 	fmt.Println(t.Failed())
 	printGet(t)
@@ -83,7 +83,7 @@ func ExampleTry1Of() {
 }
 
 func ExampleTry2Of() {
-	t := Try2Of(100, "ABC", nil)
+	t := TryOf(100, "ABC", nil)
 	fmt.Println(t.OK())
 	fmt.Println(t.Failed())
 	printGet(t)
@@ -91,19 +91,19 @@ func ExampleTry2Of() {
 	printGet(t.Get().(Tuple2).V1())
 	printGet(t.Get().(Tuple2).V2())
 
-	t = Try2Of(10, "AB", true)
+	t = TryOf(10, "AB", true)
 	fmt.Println(t.OK())
 	fmt.Println(t.Failed())
 	printGet(t)
 	printGet(t.Get())
 
-	t = Try2Of(0, "", fmt.Errorf("error"))
+	t = TryOf(0, "", fmt.Errorf("error"))
 	fmt.Println(t.OK())
 	fmt.Println(t.Failed())
 	printGet(t)
 	printGet(t.Get())
 
-	t = Try2Of(0, "", false)
+	t = TryOf(0, "", false)
 	fmt.Println(t.OK())
 	fmt.Println(t.Failed())
 	printGet(t)
@@ -139,20 +139,20 @@ func ExampleTry_Foreach() {
 		printGet(x)
 	})
 
-	Try1Of("ok", true).Foreach(func(x string) {
+	TryOf("ok", true).Foreach(func(x string) {
 		printGet(x)
 	})
 
-	Try2Of("ok", 100, nil).Foreach(func(t Tuple2) {
+	TryOf("ok", 100, nil).Foreach(func(t Tuple2) {
 		printGet(t.V1())
 		printGet(t.V2())
 	})
 
-	Try2Of("ok", 100, nil).Foreach(func(t Tuple) {
+	TryOf("ok", 100, nil).Foreach(func(t Tuple) {
 		printGet(t)
 	})
 
-	Try2Of("ok", 100, nil).Foreach(func(x1 string, x2 int) {
+	TryOf("ok", 100, nil).Foreach(func(x1 string, x2 int) {
 		printGet(x1)
 		printGet(x2)
 	})
@@ -225,12 +225,12 @@ func ExampleTry_GetOrElse() {
 
 func ExampleTry_OrElse() {
 	v := TryOf(false).OrElse(func() Try {
-		return Try1Of(100, true)
+		return TryOf(100, true)
 	})
 	printGet(v)
 
 	v = TryOf(true).OrElse(func() Try {
-		return Try1Of(100, true)
+		return TryOf(100, true)
 	})
 	printGet(v)
 
@@ -290,13 +290,13 @@ func ExampleTry_Map() {
 
 func ExampleTry_FlatMap() {
 	v := TryOf(false).FlatMap(func(x bool) Try {
-		return Try1Of(100, true)
+		return TryOf(100, true)
 	})
 	printGet(v)
 	printGet(v.Get())
 
 	v = TryOf(true).FlatMap(func(x bool) Try {
-		return Try1Of(100, true)
+		return TryOf(100, true)
 	})
 	printGet(v)
 	printGet(v.Get())
@@ -318,7 +318,7 @@ func ExampleTry_ToOption() {
 	v = TryOf(nil).ToOption()
 	printGet(v)
 
-	v = Try1Of(10, true).ToOption()
+	v = TryOf(10, true).ToOption()
 	printGet(v)
 
 	// Output:

@@ -49,31 +49,31 @@ func ExampleEitherOf() {
 }
 
 func ExampleEither1Of() {
-	e := Either1Of(100, nil)
+	e := EitherOf(100, nil)
 	printGet(e.IsLeft())
 	printGet(e.IsRight())
 	printGet(e)
 	printGet(e.Get())
 
-	e = Either1Of(10, true)
+	e = EitherOf(10, true)
 	printGet(e.IsLeft())
 	printGet(e.IsRight())
 	printGet(e)
 	printGet(e.Get())
 
-	e = Either1Of(0, fmt.Errorf("error"))
+	e = EitherOf(0, fmt.Errorf("error"))
 	printGet(e.IsLeft())
 	printGet(e.IsRight())
 	printGet(e)
 	printGet(e.Get())
 
-	e = Either1Of(0, false)
+	e = EitherOf(0, false)
 	printGet(e.IsLeft())
 	printGet(e.IsRight())
 	printGet(e)
 	printGet(e.Get())
 
-	e = Either1Of(nil, true)
+	e = EitherOf(nil, true)
 	printGet(e.IsLeft())
 	printGet(e.IsRight())
 	printGet(e)
@@ -103,7 +103,7 @@ func ExampleEither1Of() {
 }
 
 func ExampleEither2Of() {
-	e := Either2Of(100, "ABC", nil)
+	e := EitherOf(100, "ABC", nil)
 	printGet(e.IsLeft())
 	printGet(e.IsRight())
 	printGet(e)
@@ -111,19 +111,19 @@ func ExampleEither2Of() {
 	printGet(e.Get().(Tuple2).V1())
 	printGet(e.Get().(Tuple2).V2())
 
-	e = Either2Of(10, "AB", true)
+	e = EitherOf(10, "AB", true)
 	printGet(e.IsLeft())
 	printGet(e.IsRight())
 	printGet(e)
 	printGet(e.Get())
 
-	e = Either2Of(0, "", fmt.Errorf("error"))
+	e = EitherOf(0, "", fmt.Errorf("error"))
 	printGet(e.IsLeft())
 	printGet(e.IsRight())
 	printGet(e)
 	printGet(e.Get())
 
-	e = Either2Of(0, "", false)
+	e = EitherOf(0, "", false)
 	printGet(e.IsLeft())
 	printGet(e.IsRight())
 	printGet(e)
@@ -159,20 +159,20 @@ func ExampleEither_Foreach() {
 		printGet(x)
 	})
 
-	Either1Of("ok", true).Foreach(func(x string) {
+	EitherOf("ok", true).Foreach(func(x string) {
 		printGet(x)
 	})
 
-	Either2Of("ok", 100, nil).Foreach(func(t Tuple2) {
+	EitherOf("ok", 100, nil).Foreach(func(t Tuple2) {
 		printGet(t.V1())
 		printGet(t.V2())
 	})
 
-	Either2Of("ok", 100, nil).Foreach(func(t Tuple) {
+	EitherOf("ok", 100, nil).Foreach(func(t Tuple) {
 		printGet(t)
 	})
 
-	Either2Of("ok", 100, nil).Foreach(func(x1 string, x2 int) {
+	EitherOf("ok", 100, nil).Foreach(func(x1 string, x2 int) {
 		printGet(x1)
 		printGet(x2)
 	})
@@ -198,12 +198,12 @@ func ExampleEither_Forall() {
 	})
 	printGet(v)
 
-	v = Either1Of("ABC", true).Forall(func(x string) bool {
+	v = EitherOf("ABC", true).Forall(func(x string) bool {
 		return len(x) < 2
 	})
 	printGet(v)
 
-	v = Either2Of("ABC", 10, true).Forall(func(x1 string, x2 int) bool {
+	v = EitherOf("ABC", 10, true).Forall(func(x1 string, x2 int) bool {
 		return len(x1) > 2 && x2 > 5
 	})
 	printGet(v)
@@ -324,13 +324,13 @@ func ExampleEither_Map() {
 
 func ExampleEither_FlatMap() {
 	v := EitherOf(false).FlatMap(func(x bool) Either {
-		return Either1Of(100, true)
+		return EitherOf(100, true)
 	})
 	printGet(v)
 	printGet(v.Get())
 
 	v = EitherOf(true).FlatMap(func(x bool) Either {
-		return Either1Of(100, true)
+		return EitherOf(100, true)
 	})
 	printGet(v)
 	printGet(v.Get())
@@ -352,7 +352,7 @@ func ExampleEither_ToOption() {
 	v = EitherOf(nil).ToOption()
 	printGet(v)
 
-	v = Either1Of(10, true).ToOption()
+	v = EitherOf(10, true).ToOption()
 	printGet(v)
 
 	// Output:

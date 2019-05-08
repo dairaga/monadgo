@@ -41,20 +41,20 @@ func ExampleLeftProjection_Foreach() {
 		printGet(x)
 	})
 
-	Either1Of("ok", true).Left().Foreach(func(x string) {
+	EitherOf("ok", true).Left().Foreach(func(x string) {
 		printGet(x)
 	})
 
-	Either2Of("ok", 100, nil).Left().Foreach(func(t Tuple2) {
+	EitherOf("ok", 100, nil).Left().Foreach(func(t Tuple2) {
 		printGet(t.V1())
 		printGet(t.V2())
 	})
 
-	Either2Of("ok", 100, nil).Left().Foreach(func(t Tuple) {
+	EitherOf("ok", 100, nil).Left().Foreach(func(t Tuple) {
 		printGet(t)
 	})
 
-	Either2Of("ok", 100, nil).Left().Foreach(func(x1 string, x2 int) {
+	EitherOf("ok", 100, nil).Left().Foreach(func(x1 string, x2 int) {
 		printGet(x1)
 		printGet(x2)
 	})
@@ -77,13 +77,13 @@ func ExampleLeftProjection_Forall() {
 	})
 	printGet(v)
 
-	v = Either1Of("ABC", true).Left().Forall(func(x string) bool {
+	v = EitherOf("ABC", true).Left().Forall(func(x string) bool {
 		// Right and always return true
 		return len(x) < 2
 	})
 	printGet(v)
 
-	v = Either2Of("ABC", 10, true).Left().Forall(func(x1 string, x2 int) bool {
+	v = EitherOf("ABC", 10, true).Left().Forall(func(x1 string, x2 int) bool {
 		// Right and always return true
 		return len(x1) < 2 || x2 < 5
 	})
@@ -155,7 +155,7 @@ func ExampleLeftProjection_FlatMap() {
 	printGet(v.Get())
 
 	v = EitherOf(true).Left().FlatMap(func(x bool) Either {
-		return Either1Of(100, true)
+		return EitherOf(100, true)
 	})
 	printGet(v)
 	printGet(v.Get())
@@ -177,7 +177,7 @@ func ExampleLeftProjection_ToOption() {
 	v = EitherOf(nil).Left().ToOption()
 	printGet(v)
 
-	v = Either1Of(10, true).Left().ToOption()
+	v = EitherOf(10, true).Left().ToOption()
 	printGet(v)
 
 	// Output:
