@@ -135,32 +135,46 @@ func eitherFromContainer(right bool, c container) Either {
 	}
 }
 
-func eitherOf(right bool, x ...interface{}) Either {
+func newEither(right bool, x ...interface{}) Either {
 	switch len(x) {
 	case 0:
-		return &traitEither{
-			right:     right,
-			container: nothingContainer,
-		}
+		return eitherFromContainer(right, nothingContainer)
 	case 1:
-		return &traitEither{
-			right:     right,
-			container: containerOf(x),
-		}
+		return eitherFromContainer(right, containerOf(x))
 	default:
-		return &traitEither{
-			right:     right,
-			container: containerOf(TupleOf(x)),
-		}
+		return eitherFromContainer(right, containerOf(TupleOf(x)))
 	}
 }
 
 // LeftOf returns Left of x.
 func LeftOf(x ...interface{}) Either {
-	return eitherOf(false, x...)
+	return newEither(false, x...)
 }
 
 // RightOf returns Right of x.
 func RightOf(x ...interface{}) Either {
-	return eitherOf(true, x...)
+	return newEither(true, x...)
+}
+
+func EitherOf(errOrFalse interface{}) Either {
+	if isErrorOrFalse(errOrFalse) {
+		return LeftOf(errOrFalse)
+	}
+	return RightOf(errOrFalse)
+}
+
+func Either1Of(x, errOrFalse interface{}) Either {
+	if isErrorOrFalse(errOrFalse) {
+		return LeftOf(errOrFalse)
+	}
+
+	return RightOf(x)
+}
+
+func Either2Of(x1, x2, errOrFalse interface{}) Either {
+	if isErrorOrFalse(errOrFalse) {
+		return LeftOf(errOrFalse)
+	}
+
+	return RightOf(Tuple2Of(x1, x2))
 }
