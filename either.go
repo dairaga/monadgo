@@ -4,27 +4,63 @@ import (
 	"fmt"
 )
 
-// Either represents scala-like Either.
+// Either represents scala-like Either[A,B].
 type Either interface {
 	Any
+
+	// IsLeft returns true if this is a Left, false otherwise.
 	IsLeft() bool
+
+	// IsRight returns true if this is a Right, false otherwise.
 	IsRight() bool
 
+	// Left projects this Either as a Left.
 	Left() LeftProjection
-	//Right() Either
 
-	FilterOrElse(p interface{}, z interface{}) Either
+	// FilterOrElse returns Right with the existing value of Right if this is a Right and the given predicate p holds for the right value,
+	// or Left(zero) if this is a Right and the given predicate p does not hold for the right value,
+	// or Left with the existing value of Left if this is a Left.
+	// p: func(B) bool
+	// zero: func() T
+	// returns Either[T, B]
+	FilterOrElse(p interface{}, zero interface{}) Either
 
+	// Exists returns false if Left
+	// or returns the result of the application of the given predicate to the Right value.
+	// f: func(B) bool
 	Exists(f interface{}) bool
+
+	// Returns true if Left
+	// or returns the result of the application of the given predicate to the Right value.
+	// f: func(B) bool
 	Forall(f interface{}) bool
+
+	// Foreach executes the given side-effecting function f if this is a Right.
+	// f: func(B)
 	Foreach(f interface{})
+
+	// Fold applies z if this is a Left or f if this is a Right.
+	// z: func(A) X
+	// f: func(B) X
+	// returns value with type X.
 	Fold(z, f interface{}) interface{}
 
+	// Map is applying function f if this is a Right.
+	// f: func(B) C
+	// return Either[A, C]
 	Map(f interface{}) Either
+
+	// FlatMap binds the function f across Right.
+	// f: func(B) Either
+	// returns new Either.
 	FlatMap(f interface{}) Either
 
+	// GetOrElse returns the value from this Right,
+	// or z if this is a Left.
 	GetOrElse(z interface{}) interface{}
 
+	// ToOption returns a Some containing the Right value if it exists,
+	// or a None if this is a Left.
 	ToOption() Option
 }
 
@@ -156,6 +192,10 @@ func RightOf(x ...interface{}) Either {
 	return newEither(true, x...)
 }
 
+// EitherOf returns a Either with one parameter.
+// errOrFalse must be bool or error type.
+// Return Left if errOrFalse is false or error existing,
+// or Right of Null.
 func EitherOf(errOrFalse interface{}) Either {
 	if isErrorOrFalse(errOrFalse) {
 		return LeftOf(errOrFalse)
@@ -163,6 +203,10 @@ func EitherOf(errOrFalse interface{}) Either {
 	return RightOf(errOrFalse)
 }
 
+// Either1Of returns a Either.
+// errOrFalse must be bool or error type.
+// Return Left if errOrFalse is false or error existing,
+// or Right of x.
 func Either1Of(x, errOrFalse interface{}) Either {
 	if isErrorOrFalse(errOrFalse) {
 		return LeftOf(errOrFalse)
@@ -171,6 +215,10 @@ func Either1Of(x, errOrFalse interface{}) Either {
 	return RightOf(x)
 }
 
+// Either2Of returns a Try.
+// errOrFalse must be bool or error type.
+// Return Left if errOrFalse is false or error existing,
+// or Right of Tuple2(x1,x2).
 func Either2Of(x1, x2, errOrFalse interface{}) Either {
 	if isErrorOrFalse(errOrFalse) {
 		return LeftOf(errOrFalse)

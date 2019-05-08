@@ -349,7 +349,7 @@ func ExampleMap_Filter() {
 	// 4 44
 }
 
-func ExampleMap_Span() {
+func ExampleMap_Split() {
 	m := MapOf(map[int]int{
 		1: 11,
 		2: 22,
@@ -357,7 +357,7 @@ func ExampleMap_Span() {
 		4: 44,
 	})
 
-	t := m.Span(func(k, v int) bool {
+	t := m.Split(func(k, v int) bool {
 		return (k+v)&1 == 1
 	})
 
@@ -416,6 +416,18 @@ func ExampleMap_Collect() {
 
 	pf = PartialFuncOf(func(k, v int) bool {
 		return !((k+v)&1 == 1)
+	}, func(k, v int) int {
+		return k + v
+	})
+
+	s1 := m.Collect(pf).Get().([]int)
+
+	for i, v := range s1 {
+		fmt.Println(i, v)
+	}
+
+	pf = PartialFuncOf(func(k, v int) bool {
+		return !((k+v)&1 == 1)
 	}, func(p Pair) Pair {
 		return p
 	})
@@ -427,6 +439,10 @@ func ExampleMap_Collect() {
 	}
 
 	// Unordered Output:
+	// 0 12
+	// 1 24
+	// 2 36
+	// 3 48
 	// 1 11
 	// 2 22
 	// 3 33

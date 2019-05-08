@@ -38,16 +38,6 @@ MonadGo is implements Scala monadic operations, like map, flatMap, fold, foreach
 
 **Pair** represents Pair in Scala. It is from Tuple2 and used in Map(K,V). Pair in Scala is deprecated and use Tuple2 instead.
 
-### Option
-
-**Option** represents Option in Scala. **Some** and **None** are subtype and value of Option.
-
-[Option in Scala](https://www.scala-lang.org/api/current/scala/Option.html)
-
-### Try
-
-**Try** represents Try in Scala. **Success** and **Failure** are subtypes of Try. TryOf or TryxOf returns Failure if last arguement is error or false because of no exception in GO.
-
 [Try in Scala](https://www.scala-lang.org/api/current/scala/util/Try.html)
 
 ### Slice
@@ -61,3 +51,31 @@ MonadGo is implements Scala monadic operations, like map, flatMap, fold, foreach
 **Map** wraps Go map and implements monad functions like in Map of Scala.
 
 [Map in Scala](https://www.scala-lang.org/api/current/scala/collection/Map.html)
+
+### Option
+
+**Option** represents Option in Scala. **Some** and **None** are subtype and value of Option.
+
+[Option in Scala](https://www.scala-lang.org/api/current/scala/Option.html)
+
+### Try
+
+**Try** represents Try in Scala. **Success** and **Failure** are subtypes of Try. TryOf or TryxOf returns Failure if last arguement is error or false.
+
+### Either
+
+**Either** represents Either in Scala. **Right** and **Left** are subtyes of Either, EitherOf or EitherxOf returns Left if last arguement is error or false.
+
+[Either in Scala](https://www.scala-lang.org/api/current/scala/util/Either.html)
+
+#### LeftProjection
+
+**LeftProjection** represents LeftProjection in Scala. No RightProjection in monadog because Either of monadgo also is **Right-Biased**.
+
+[LeftProjection in Scala](https://www.scala-lang.org/api/current/scala/util/Either$$LeftProjection.html)
+
+### PartialFunc
+
+**PartialFunc** represents PartialFunction in Scala. It consists of Condition and Action funtions. **Condition** checks input is valid or not, and then returns result from invoking **Action** on input if input is valid.
+
+[PartialFunction in Scala](https://www.scala-lang.org/api/current/scala/PartialFunction.html)

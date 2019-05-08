@@ -427,14 +427,14 @@ func ExampleSlice_Reverse() {
 	// [5 4 3 2 1], []int
 }
 
-func ExampleSlice_Span() {
+func ExampleSlice_Split() {
 	s := SliceOf([]int{})
-	printGet(s.Span(func(x int) bool {
+	printGet(s.Split(func(x int) bool {
 		return x >= 2
 	}))
 
 	s = SliceOf([]int{1, 2, 3, 4, 5})
-	printGet(s.Span(func(x int) bool {
+	printGet(s.Split(func(x int) bool {
 		return x >= 2
 	}))
 

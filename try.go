@@ -12,20 +12,45 @@ type TryOrElse func() Try
 type Try interface {
 	Any
 
+	// OK returns true if this is Success.
 	OK() bool
+
+	// Failed returns true if this is Failure.
 	Failed() bool
 
-	// Traversable methods start
+	// Foreach applies f to Try's value if this is Success.
+	// f: func(T)
 	Foreach(f interface{})
-	Fold(z, f interface{}) interface{}
-	// Traversable methods end
 
+	// Fold applies z if this is a Failure,
+	// or f if this is a Success.
+	// If f is initially applied and last element in results is false or error,
+	// then z applied with this element value.
+	// z: func(A) X. A can be error or bool.
+	// f: func(B) X. B is the element type in Success.
+	// returns value with type X.
+	Fold(z, f interface{}) interface{}
+
+	// Map applies f to the value from this Success,
+	// or returns this if this is a Failure.
+	// f: func(T) X
 	Map(f interface{}) Try
+
+	// FlatMap returns the f applied to the value from this Success,
+	// or returns this if this is a Failure.
+	// f: func(T) Try
 	FlatMap(f interface{}) Try
 
+	// OrElse returns this if it's a Success,
+	// or z if this is a Failure.
 	OrElse(z TryOrElse) Try
+
+	// GetOrElse returns the value from this Success,
+	// or z if this is a Failure.
 	GetOrElse(z interface{}) interface{}
 
+	// ToOption returns None if this is a Failure,
+	// or a Some containing Success's value.
 	ToOption() Option
 }
 

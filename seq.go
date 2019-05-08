@@ -8,6 +8,8 @@ import (
 
 type sequence interface {
 	Any
+
+	// toSeq converts internal value to seq.
 	toSeq() seq
 }
 
@@ -86,6 +88,7 @@ func seqOf(x interface{}) seq {
 
 // ----------------------------------------------------------------------------
 
+// Get returns internal value.
 func (s seq) Get() interface{} {
 	return s.x
 }
@@ -102,18 +105,24 @@ func (s seq) toSeq() seq {
 	return s
 }
 
+// Size returns the size.
 func (s seq) Size() int {
 	return s.len
 }
 
+// Len returns the length.
 func (s seq) Len() int {
 	return s.len
 }
 
+// Cap returns the capacity.
 func (s seq) Cap() int {
 	return s.cap
 }
 
+// Map applies function f to all elements in seq s.
+// f: func(T) X
+// returns a Traversable with element type X.
 func (s seq) Map(f interface{}) Traversable {
 	if s.empty {
 		return emptySeq
@@ -128,6 +137,9 @@ func (s seq) Map(f interface{}) Traversable {
 	return seqFromValue(ret)
 }
 
+// FlatMap applies f to all elements and builds a new Travesable from result.
+// f: func(T) X, X can be Go slice, or map.
+// returns a new Traversable with element type X.
 func (s seq) FlatMap(f interface{}) Traversable {
 	if s.empty {
 		return emptySeq
@@ -140,6 +152,8 @@ func (s seq) FlatMap(f interface{}) Traversable {
 	} else if fw.out[0].Kind() == reflect.Map {
 		elm = typePair
 	} else {
+		// collect other type into a slice.
+		// it is invalid in Scala.
 		elm = fw.out[0]
 	}
 
@@ -154,9 +168,10 @@ func (s seq) FlatMap(f interface{}) Traversable {
 }
 
 // Forall tests whether a predicate holds for all elements.
+// f: func(T) bool
 func (s seq) Forall(f interface{}) bool {
 	if s.empty {
-		return false
+		return true
 	}
 
 	fw := funcOf(f)
@@ -171,6 +186,7 @@ func (s seq) Forall(f interface{}) bool {
 }
 
 // Foreach applies f to all element.
+// f: func(T)
 func (s seq) Foreach(f interface{}) {
 	if s.len <= 0 {
 		return
@@ -184,6 +200,9 @@ func (s seq) Foreach(f interface{}) {
 }
 
 // Fold folds the elements using specified associative binary operator.
+// z: func() T or value of type T.
+// f: func(T, T) T
+// returns value with type T
 func (s seq) Fold(z, f interface{}) interface{} {
 	z = checkAndInvoke(z)
 
@@ -200,6 +219,7 @@ func (s seq) Fold(z, f interface{}) interface{} {
 	return zval.Interface()
 }
 
+// Head returns the first element.
 func (s seq) Head() interface{} {
 	if s.len <= 0 {
 		return nil
@@ -208,6 +228,7 @@ func (s seq) Head() interface{} {
 	return s.v.Index(0).Interface()
 }
 
+// HeadOption returns None if this is empty, otherwise return Some of first element.
 func (s seq) HeadOption() Option {
 	if s.len <= 0 {
 		return None
@@ -215,6 +236,7 @@ func (s seq) HeadOption() Option {
 	return OptionOf(s.v.Index(0))
 }
 
+// Tail returns all elements except the first.
 func (s seq) Tail() Traversable {
 	if s.len < 1 {
 		return seqFromValue(s.v.Slice(0, 0))
@@ -223,6 +245,9 @@ func (s seq) Tail() Traversable {
 	return seqFromValue(s.v.Slice(1, s.len))
 }
 
+// Reduce reduces the elements of this using the specified associative binary operator.
+// f: func(T, T) T
+// returns value with type T.
 func (s seq) Reduce(f interface{}) interface{} {
 	if s.len <= 0 {
 		panic("empty list can not reduce")
@@ -242,6 +267,10 @@ func (s seq) Reduce(f interface{}) interface{} {
 	return zval.Interface()
 }
 
+// Scan computes a prefix scan of the elements of the collection.
+// z: func() T or value with type T.
+// f: func(T, T) T
+// returns a new Traversable with first element z.
 func (s seq) Scan(z, f interface{}) Traversable {
 	z = checkAndInvoke(z)
 	zval := oneToSlice(reflect.ValueOf(z))
@@ -257,6 +286,9 @@ func (s seq) Scan(z, f interface{}) Traversable {
 	return seqFromValue(zval)
 }
 
+// GroupBy returns Map with K -> Go slice. Key is the result of f. Collect elements into a slice with same resulting key value.
+// f: func(T) K
+// returns Map(K -> Go slice)
 func (s seq) GroupBy(f interface{}) Map {
 	if s.len <= 0 {
 		panic("can not group by on empty slice")
@@ -272,6 +304,7 @@ func (s seq) GroupBy(f interface{}) Map {
 	return newMap(m)
 }
 
+// Take returns the first n elements.
 func (s seq) Take(n int) Traversable {
 	if n >= s.len {
 		n = s.len
@@ -279,6 +312,8 @@ func (s seq) Take(n int) Traversable {
 	return seqFromValue(s.v.Slice(0, n))
 }
 
+// TakeWhile takes longest prefix of elements that satisfy a predicate.
+// f: func(T) bool
 func (s seq) TakeWhile(f interface{}) Traversable {
 	n := 0
 	fw := funcOf(f)
@@ -296,6 +331,7 @@ func (s seq) TakeWhile(f interface{}) Traversable {
 	return seqFromValue(s.v.Slice(0, n))
 }
 
+// Drop returns all elements except first n ones.
 func (s seq) Drop(n int) Traversable {
 	if n > s.len {
 		n = s.len
@@ -304,6 +340,8 @@ func (s seq) Drop(n int) Traversable {
 	return seqFromValue(s.v.Slice(n, s.len))
 }
 
+// Exists tests whether a predicate holds for at least one element of this sequence.
+// f: func(T) bool
 func (s seq) Exists(f interface{}) bool {
 	if s.len <= 0 {
 		return false
@@ -319,6 +357,9 @@ func (s seq) Exists(f interface{}) bool {
 	return false
 }
 
+// Find returns the first element satisfying f,
+// otherwise return None.
+// f: func(T) bool
 func (s seq) Find(f interface{}) Option {
 	if s.len <= 0 {
 		return None
@@ -336,6 +377,8 @@ func (s seq) Find(f interface{}) Option {
 	return None
 }
 
+// Filter retuns all elements satisfying f.
+// f: func(T) bool
 func (s seq) Filter(f interface{}) Traversable {
 	ret := reflect.MakeSlice(s.t, 0, 0)
 
@@ -351,6 +394,9 @@ func (s seq) Filter(f interface{}) Traversable {
 	return seqFromValue(ret)
 }
 
+// IndexWhere finds index of the first element satisfying f after or at some start index.
+// f: func(T) bool
+// returns -1 if no elment satisfying f.
 func (s seq) IndexWhere(f interface{}, start int) int {
 	if s.len <= 0 {
 		return -1
@@ -369,6 +415,9 @@ func (s seq) IndexWhere(f interface{}, start int) int {
 	return -1
 }
 
+// LastIndexWhere finds index of last element satisfying f.
+// f: func(T) bool
+// returns -1 if no elment satisfying f.
 func (s seq) LastIndexWhere(f interface{}, end int) int {
 	if s.len <= 0 {
 		return -1
@@ -386,6 +435,7 @@ func (s seq) LastIndexWhere(f interface{}, end int) int {
 	return -1
 }
 
+// MkString displays all elements in a string using start, end, and separator sep.
 func (s seq) MkString(start, sep, end string) string {
 	sb := new(strings.Builder)
 	sb.WriteString(start)
@@ -398,6 +448,7 @@ func (s seq) MkString(start, sep, end string) string {
 	return sb.String()
 }
 
+// Reverse returns new list with elements in reversed order.
 func (s seq) Reverse() Traversable {
 	ret := reflect.MakeSlice(s.t, s.len, s.len)
 
@@ -408,7 +459,9 @@ func (s seq) Reverse() Traversable {
 	return seqFromValue(ret)
 }
 
-func (s seq) Span(f interface{}) Tuple2 {
+// Split splits this into a unsatisfying and satisfying pair according to f.
+// f: func(T) bool
+func (s seq) Split(f interface{}) Tuple2 {
 	if s.len <= 0 {
 		return Tuple2Of(nothings, nothings)
 	}
@@ -431,6 +484,9 @@ func (s seq) Span(f interface{}) Tuple2 {
 	return Tuple2Of(left.Interface(), right.Interface())
 }
 
+// Collect returns elements satisfying pf.
+// pf is a partial function consisting of Condition func(T) bool and Action func(T) X.
+// returns a new Traversable[X]
 func (s seq) Collect(pf PartialFunc) Traversable {
 	ret := makeSlice(pf.action.out[0], 0, 0)
 	if s.len <= 0 {

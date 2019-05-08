@@ -97,7 +97,7 @@ func ExampleOption_Forall() {
 	fmt.Println(v)
 
 	v = None.Forall(func() bool {
-		return true
+		return false
 	})
 	fmt.Println(v)
 
@@ -105,7 +105,7 @@ func ExampleOption_Forall() {
 	// true
 	// true
 	// false
-	// false
+	// true
 }
 
 func ExampleOption_Fold() {

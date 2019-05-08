@@ -5,18 +5,49 @@ import (
 	"reflect"
 )
 
-// LeftProjection represents scala-like LeftProjection.
+// LeftProjection represents scala-like LeftProjection[A,B].
 type LeftProjection interface {
 	Any
+
+	// E return internal Either value.
 	E() Either
 
+	// Exists returns false if Right,
+	// or returns the result of the application of the given function to the Left value.
+	// func(A) bool
 	Exists(f interface{}) bool
+
+	// Filter returns None if this is a Right,
+	// or if the given predicate p does not hold for the left value,
+	// otherwise return a Left.
+	// f: func(A) bool
 	Filter(f interface{}) Option
+
+	// FlatMap binds the given function f across Left.
+	// f: func(A) Either
+	// returns a new Either.
 	FlatMap(f interface{}) Either
+
+	// Forall returns true if Right,
+	// or returns the result of the application of the given function to the Left value.
+	// f: func(A) bool
 	Forall(f interface{}) bool
+
+	// Foreach executes the given side-effecting function f if this is a Left.
+	// f: func(A)
 	Foreach(f interface{})
+
+	// GetOrElse returns the value from this Left,
+	// or z if this is a Right.
 	GetOrElse(z interface{}) interface{}
+
+	// Map applies f through Left.
+	// f: func(A) X
+	// returns Either[X, B]
 	Map(f interface{}) Either
+
+	// ToOption returns a Some containing the Left value if it exists,
+	// or a None if this is a Right.
 	ToOption() Option
 }
 

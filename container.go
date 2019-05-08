@@ -74,7 +74,7 @@ func (c container) _flatMap(f interface{}) interface{} {
 
 func (c container) Forall(f interface{}) bool {
 	if c.empty {
-		return false
+		return true
 	}
 
 	return c.invoke(f).Bool()
