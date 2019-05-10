@@ -5,24 +5,6 @@ import (
 	"reflect"
 )
 
-/*
-// Tuple4 represents scala-like Tuple4.
-type Tuple4 interface {
-	Tuple
-	T1() reflect.Type
-	V1() interface{}
-
-	T2() reflect.Type
-	V2() interface{}
-
-	T3() reflect.Type
-	V3() interface{}
-
-	T4() reflect.Type
-	V4() interface{}
-}
-*/
-
 // Tuple4 represents scala-like Tuple4.
 type Tuple4 struct {
 	types  [4]reflect.Type
@@ -32,6 +14,7 @@ type Tuple4 struct {
 
 var _ Tuple4 = Tuple4{}
 
+// Get ...
 func (t Tuple4) Get() interface{} {
 	return t.values
 }
@@ -44,6 +27,7 @@ func (t Tuple4) String() string {
 	return fmt.Sprintf("(%v,%v,%v,%v)", t.values[0], t.values[1], t.values[2], t.values[3])
 }
 
+// Dimension ...
 func (t Tuple4) Dimension() int {
 	return 4
 }
@@ -56,42 +40,52 @@ func (t Tuple4) reduce() Tuple {
 	return formTuple3(t.types[0], t.types[1], t.types[2], t.values[0], t.values[1], t.values[2])
 }
 
+// T ...
 func (t Tuple4) T(n int) reflect.Type {
 	return t.types[n]
 }
 
+// V ...
 func (t Tuple4) V(n int) interface{} {
 	return t.values[n]
 }
 
+// T1 returns type of first element.
 func (t Tuple4) T1() reflect.Type {
 	return t.types[0]
 }
 
+// T2 returns type of second element.
 func (t Tuple4) T2() reflect.Type {
 	return t.types[1]
 }
 
+// T3 returns type of third element.
 func (t Tuple4) T3() reflect.Type {
 	return t.types[2]
 }
 
+// T4 returns type of fourth element.
 func (t Tuple4) T4() reflect.Type {
 	return t.types[3]
 }
 
+// V1 returns value of first element.
 func (t Tuple4) V1() interface{} {
 	return t.values[0]
 }
 
+// V2 returns value of second element.
 func (t Tuple4) V2() interface{} {
 	return t.values[1]
 }
 
+// V3 returns value of third element.
 func (t Tuple4) V3() interface{} {
 	return t.values[2]
 }
 
+// V4 returns value of fourth element.
 func (t Tuple4) V4() interface{} {
 	return t.values[3]
 }

@@ -6,18 +6,29 @@ import (
 	"strings"
 )
 
-// Tuple represents scala-like Tuples.
+// Tuple represents scala-like Tuple.
 type Tuple interface {
 	Any
+
+	// Dimension returns number of dimension.
 	Dimension() int
+
+	// T returns the type of n-index element.
 	T(n int) reflect.Type
+
+	// V returns the value of n-index element.
 	V(n int) interface{}
+
+	// toValues returns slice of reflect.Value in Tuple.
 	toValues() []reflect.Value
+
+	// reduce reduces tuple.
 	reduce() Tuple
 }
 
 // ----------------------------------------------------------------------------
 
+// TupleN implements Tuple.
 type TupleN struct {
 	d      int
 	types  []reflect.Type
@@ -27,6 +38,7 @@ type TupleN struct {
 
 var _ Tuple = TupleN{}
 
+// Get returns all elements in Go slice.
 func (t TupleN) Get() interface{} {
 	return t.values
 }
@@ -46,18 +58,22 @@ func (t TupleN) String() string {
 	return sb.String()
 }
 
+// Dimension return number of dimension of t.
 func (t TupleN) Dimension() int {
 	return t.d
 }
 
+// T returns type of n-index element.
 func (t TupleN) T(n int) reflect.Type {
 	return t.types[n]
 }
 
+// V returns value of n-index element.
 func (t TupleN) V(n int) interface{} {
 	return t.values[n]
 }
 
+// reduce returns a new reduced tuple from t.
 func (t TupleN) reduce() Tuple {
 	d := t.d - 1
 	switch d {
@@ -74,7 +90,7 @@ func (t TupleN) toValues() []reflect.Value {
 
 // ----------------------------------------------------------------------------
 
-// TupleOf returns a general Tuple
+// TupleOf returns a general Tuple.
 func TupleOf(v []interface{}) Tuple {
 	size := len(v)
 	switch size {
@@ -136,7 +152,7 @@ func newTuple(t []reflect.Type, v []reflect.Value) Tuple {
 		return newTuple4(t[0], t[1], t[2], t[3], v[0], v[1], v[2], v[3])
 	}
 
-	ret := &TupleN{
+	ret := TupleN{
 		d:      len(t),
 		types:  t,
 		values: make([]interface{}, len(t), len(t)),

@@ -1,6 +1,8 @@
 # monadgo
 
-MonadGo is implements Scala monadic operations, like map, flatMap, fold, foreach, forall and etc.
+MonadGo is a Cyberon Corporation internal toolkit about implementing Scala monadic operations, like map, flatMap, fold, foreach, forall and etc.
+
+[About Cyberon Corporation](https://www.cyberon.com.tw/projects/cyberon_web/english/index.html.php)
 
 ## Data Types
 
@@ -42,29 +44,29 @@ MonadGo is implements Scala monadic operations, like map, flatMap, fold, foreach
 
 ### Slice
 
-**Slice** wraps GO slice and implements monad functions like in List of Scala.
+**Slice** wraps GO slice and implements monadic functions like in List of Scala.
 
 [List in Scala](https://www.scala-lang.org/api/current/scala/collection/immutable/List.html)
 
 ### Map
 
-**Map** wraps Go map and implements monad functions like in Map of Scala.
+**Map** wraps Go map and implements monadic functions like in Map of Scala.
 
 [Map in Scala](https://www.scala-lang.org/api/current/scala/collection/Map.html)
 
 ### Option
 
-**Option** represents Option in Scala. **Some** and **None** are subtype and value of Option.
+**Option** represents Option in Scala. **Some** and **None** are subtypes of Option.
 
 [Option in Scala](https://www.scala-lang.org/api/current/scala/Option.html)
 
 ### Try
 
-**Try** represents Try in Scala. **Success** and **Failure** are subtypes of Try. TryOf or TryxOf returns Failure if last arguement is error or false.
+**Try** represents Try in Scala. **Success** and **Failure** are subtypes of Try. TryOf returns Failure if **last** arguement is **error** or **false**.
 
 ### Either
 
-**Either** represents Either in Scala. **Right** and **Left** are subtyes of Either, EitherOf or EitherxOf returns Left if last arguement is error or false.
+**Either** represents Either in Scala. **Right** and **Left** are subtyes of Either, EitherOf returns Left if **last arguement** is **error** or **false**.
 
 [Either in Scala](https://www.scala-lang.org/api/current/scala/util/Either.html)
 

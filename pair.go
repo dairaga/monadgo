@@ -4,24 +4,18 @@ import (
 	"reflect"
 )
 
-/*
 // Pair represents a scala-like Pair.
-type Pair interface {
-	Tuple2
-	Key() interface{}
-	Value() interface{}
-}
-*/
-
-// Pair represents a scala-like Pair.
+// Element in Go map will convert to Pair.
 type Pair struct {
 	Tuple2
 }
 
+// Key returns the key in map.
 func (p Pair) Key() interface{} {
 	return p.Tuple2.V1()
 }
 
+// Value returns the value in map.
 func (p Pair) Value() interface{} {
 	return p.Tuple2.V2()
 }

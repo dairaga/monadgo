@@ -65,7 +65,7 @@ func ExampleFuncOf0() {
 	// (2,AB), monadgo.Pair
 	// (3,ABC,3.33), monadgo.Tuple3
 	// (4,ABCD,4.444,(4+4i)), monadgo.Tuple4
-	// (5,ABCDE,5.555,(5+5i),53), *monadgo.TupleN
+	// (5,ABCDE,5.555,(5+5i),53), monadgo.TupleN
 }
 
 // ----------------------------------------------------------------------------
@@ -95,36 +95,36 @@ func ExampleFuncOf1() {
 
 	f := funcOf(func1)
 	v := f.invoke(1)
-	fmt.Println(v)
+	printGet(v)
 
 	f = funcOf(func11)
 	v = f.invoke("")
-	fmt.Println(v)
+	printGet(v)
 
 	f = funcOf(func12)
 	v = f.invoke(float64(1))
-	fmt.Println(v)
+	printGet(v)
 
 	f = funcOf(func13)
 	v = f.invoke(int64(1))
-	fmt.Println(v)
+	printGet(v)
 
 	f = funcOf(func14)
 	v = f.invoke(true)
-	fmt.Println(v)
+	printGet(v)
 
 	f = funcOf(func15)
 	v = f.invoke(Tuple2Of(1, 2))
-	fmt.Println(v)
+	printGet(v)
 
 	// Output:
 	// test
-	// Void
-	// 1
-	// (2,AB)
-	// (3,ABC,3.33)
-	// (4,ABCD,4.444,(4+4i))
-	// (5,ABCDE,5.555,(5+5i),53)
+	// Void, monadgo._unit
+	// 1, int
+	// (2,AB), monadgo.Pair
+	// (3,ABC,3.33), monadgo.Tuple3
+	// (4,ABCD,4.444,(4+4i)), monadgo.Tuple4
+	// (5,ABCDE,5.555,(5+5i),53), monadgo.TupleN
 }
 
 // ----------------------------------------------------------------------------
@@ -154,36 +154,36 @@ func ExampleFuncOf2() {
 
 	f := funcOf(func2)
 	v := f.invoke(Tuple2Of(1, 1))
-	fmt.Println(v)
+	printGet(v)
 
 	f = funcOf(func21)
 	v = f.invoke(Tuple2Of("", ""))
-	fmt.Println(v)
+	printGet(v)
 
 	f = funcOf(func22)
 	v = f.invoke(Tuple2Of(float64(1), float64(1)))
-	fmt.Println(v)
+	printGet(v)
 
 	f = funcOf(func23)
 	v = f.invoke(Tuple2Of(int64(1), int64(1)))
-	fmt.Println(v)
+	printGet(v)
 
 	f = funcOf(func24)
 	v = f.invoke(Tuple2Of(true, true))
-	fmt.Println(v)
+	printGet(v)
 
 	f = funcOf(func25)
 	v = f.invoke(Tuple2Of(Tuple2Of(1, 2), Tuple2Of(1, 2)))
-	fmt.Println(v)
+	printGet(v)
 
 	// Output:
 	// test
-	// Void
-	// 1
-	// (2,AB)
-	// (3,ABC,3.33)
-	// (4,ABCD,4.444,(4+4i))
-	// (5,ABCDE,5.555,(5+5i),53)
+	// Void, monadgo._unit
+	// 1, int
+	// (2,AB), monadgo.Pair
+	// (3,ABC,3.33), monadgo.Tuple3
+	// (4,ABCD,4.444,(4+4i)), monadgo.Tuple4
+	// (5,ABCDE,5.555,(5+5i),53), monadgo.TupleN
 }
 
 // ----------------------------------------------------------------------------
