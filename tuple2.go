@@ -5,6 +5,7 @@ import (
 	"reflect"
 )
 
+/*
 // Tuple2 represents scala-like Tuple2
 type Tuple2 interface {
 	Tuple
@@ -14,60 +15,61 @@ type Tuple2 interface {
 	T2() reflect.Type
 	V2() interface{}
 }
+*/
 
-type _tuple2 struct {
+type Tuple2 struct {
 	types  [2]reflect.Type
 	values [2]interface{}
 	vals   [2]reflect.Value
 }
 
-var _ Tuple2 = _tuple2{}
+var _ Tuple2 = Tuple2{}
 
-func (t _tuple2) Get() interface{} {
+func (t Tuple2) Get() interface{} {
 	return t.values
 }
 
-func (t _tuple2) rv() reflect.Value {
+func (t Tuple2) rv() reflect.Value {
 	return reflect.ValueOf(t)
 }
 
-func (t _tuple2) String() string {
+func (t Tuple2) String() string {
 	return fmt.Sprintf("(%v,%v)", t.values[0], t.values[1])
 }
 
-func (t _tuple2) Dimension() int {
+func (t Tuple2) Dimension() int {
 	return 2
 }
 
-func (t _tuple2) toValues() []reflect.Value {
+func (t Tuple2) toValues() []reflect.Value {
 	return t.vals[0:]
 }
 
-func (t _tuple2) reduce() Tuple {
+func (t Tuple2) reduce() Tuple {
 	return t
 }
 
-func (t _tuple2) T(n int) reflect.Type {
+func (t Tuple2) T(n int) reflect.Type {
 	return t.types[n]
 }
 
-func (t _tuple2) V(n int) interface{} {
+func (t Tuple2) V(n int) interface{} {
 	return t.values[n]
 }
 
-func (t _tuple2) T1() reflect.Type {
+func (t Tuple2) T1() reflect.Type {
 	return t.types[0]
 }
 
-func (t _tuple2) T2() reflect.Type {
+func (t Tuple2) T2() reflect.Type {
 	return t.types[1]
 }
 
-func (t _tuple2) V1() interface{} {
+func (t Tuple2) V1() interface{} {
 	return t.values[0]
 }
 
-func (t _tuple2) V2() interface{} {
+func (t Tuple2) V2() interface{} {
 	return t.values[1]
 }
 
@@ -79,7 +81,7 @@ func Tuple2Of(v1, v2 interface{}) Tuple2 {
 }
 
 func formTuple2(t1, t2 reflect.Type, v1, v2 interface{}) Tuple2 {
-	return _tuple2{
+	return Tuple2{
 		types:  [2]reflect.Type{t1, t2},
 		values: [2]interface{}{v1, v2},
 		vals:   [2]reflect.Value{reflect.ValueOf(v1), reflect.ValueOf(v2)},
@@ -87,8 +89,8 @@ func formTuple2(t1, t2 reflect.Type, v1, v2 interface{}) Tuple2 {
 }
 
 // newTuple2 returns a Tuple2.
-func newTuple2(t1, t2 reflect.Type, v1, v2 reflect.Value) _tuple2 {
-	return _tuple2{
+func newTuple2(t1, t2 reflect.Type, v1, v2 reflect.Value) Tuple2 {
+	return Tuple2{
 		types:  [2]reflect.Type{t1, t2},
 		values: [2]interface{}{v1.Interface(), v2.Interface()},
 		vals:   [2]reflect.Value{v1, v2},

@@ -4,36 +4,37 @@ import (
 	"reflect"
 )
 
+/*
 // Pair represents a scala-like Pair.
 type Pair interface {
 	Tuple2
 	Key() interface{}
 	Value() interface{}
 }
+*/
 
-type _pair struct {
-	_tuple2
+// Pair represents a scala-like Pair.
+type Pair struct {
+	Tuple2
 }
 
-var _ Pair = _pair{}
-
-func (p _pair) Key() interface{} {
-	return p._tuple2.V1()
+func (p Pair) Key() interface{} {
+	return p.Tuple2.V1()
 }
 
-func (p _pair) Value() interface{} {
-	return p._tuple2.V2()
+func (p Pair) Value() interface{} {
+	return p.Tuple2.V2()
 }
 
 // ----------------------------------------------------------------------------
 
 // PairOf returns a pair.
 func PairOf(k, v interface{}) Pair {
-	return _pair{newTuple2(reflect.TypeOf(k), reflect.TypeOf(v), reflect.ValueOf(k), reflect.ValueOf(v))}
+	return Pair{newTuple2(reflect.TypeOf(k), reflect.TypeOf(v), reflect.ValueOf(k), reflect.ValueOf(v))}
 }
 
-func pairFromTuple2(t _tuple2) Pair {
-	return _pair{t}
+func pairFromTuple2(t Tuple2) Pair {
+	return Pair{t}
 }
 
 // ----------------------------------------------------------------------------

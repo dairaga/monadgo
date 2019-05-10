@@ -220,7 +220,7 @@ func ExampleMap_Fold() {
 	// (3,23)
 	// (4,34)
 	// (5,45)
-	// (20,210), monadgo._pair
+	// (20,210), monadgo.Pair
 }
 
 func ExampleMap_Reduce() {
@@ -243,8 +243,8 @@ func ExampleMap_Reduce() {
 	}))
 
 	// Output:
-	// (10,110), monadgo._pair
-	// (10,110), monadgo._pair
+	// (10,110), monadgo.Pair
+	// (10,110), monadgo.Pair
 }
 
 func ExampleMap_GroupBy() {

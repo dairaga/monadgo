@@ -18,24 +18,24 @@ type Tuple interface {
 
 // ----------------------------------------------------------------------------
 
-type _tuple struct {
+type TupleN struct {
 	d      int
 	types  []reflect.Type
 	values []interface{}
 	vals   []reflect.Value
 }
 
-var _ Tuple = _tuple{}
+var _ Tuple = TupleN{}
 
-func (t _tuple) Get() interface{} {
+func (t TupleN) Get() interface{} {
 	return t.values
 }
 
-func (t _tuple) rv() reflect.Value {
+func (t TupleN) rv() reflect.Value {
 	return reflect.ValueOf(t)
 }
 
-func (t _tuple) String() string {
+func (t TupleN) String() string {
 	sb := new(strings.Builder)
 	sb.WriteByte('(')
 	sb.WriteString(fmt.Sprintf("%v", t.values[0]))
@@ -46,19 +46,19 @@ func (t _tuple) String() string {
 	return sb.String()
 }
 
-func (t _tuple) Dimension() int {
+func (t TupleN) Dimension() int {
 	return t.d
 }
 
-func (t _tuple) T(n int) reflect.Type {
+func (t TupleN) T(n int) reflect.Type {
 	return t.types[n]
 }
 
-func (t _tuple) V(n int) interface{} {
+func (t TupleN) V(n int) interface{} {
 	return t.values[n]
 }
 
-func (t _tuple) reduce() Tuple {
+func (t TupleN) reduce() Tuple {
 	d := t.d - 1
 	switch d {
 	case 4:
@@ -68,7 +68,7 @@ func (t _tuple) reduce() Tuple {
 	}
 }
 
-func (t _tuple) toValues() []reflect.Value {
+func (t TupleN) toValues() []reflect.Value {
 	return t.vals
 }
 
@@ -108,7 +108,7 @@ func formTuple(t []reflect.Type, v []interface{}) Tuple {
 		return formTuple4(t[0], t[1], t[2], t[3], v[0], v[1], v[2], v[3])
 	}
 
-	ret := &_tuple{
+	ret := &TupleN{
 		d:      len(t),
 		types:  t,
 		values: v,
@@ -136,7 +136,7 @@ func newTuple(t []reflect.Type, v []reflect.Value) Tuple {
 		return newTuple4(t[0], t[1], t[2], t[3], v[0], v[1], v[2], v[3])
 	}
 
-	ret := &_tuple{
+	ret := &TupleN{
 		d:      len(t),
 		types:  t,
 		values: make([]interface{}, len(t), len(t)),

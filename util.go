@@ -81,11 +81,11 @@ func mergeMap(x, y reflect.Value) reflect.Value {
 		return oneToMap(y)
 	}
 
-	if x.Type().Implements(typePair) {
+	if x.Type().ConvertibleTo(typePair) {
 		x = oneToMap(x)
 	}
 
-	if y.Type().Implements(typePair) {
+	if y.Type().ConvertibleTo(typePair) {
 		py := y.Interface().(Pair)
 		x.SetMapIndex(reflect.ValueOf(py.Key()), reflect.ValueOf(py.Value()))
 	} else {
@@ -99,7 +99,7 @@ func mergeMap(x, y reflect.Value) reflect.Value {
 }
 
 func oneToMap(x reflect.Value) reflect.Value {
-	if x.Type().Implements(typePair) {
+	if x.Type().ConvertibleTo(typePair) {
 		px := x.Interface().(Pair)
 		m := makeMap(reflect.TypeOf(px.Key()), reflect.TypeOf(px.Value()), 1)
 		m.SetMapIndex(reflect.ValueOf(px.Key()), reflect.ValueOf(px.Value()))

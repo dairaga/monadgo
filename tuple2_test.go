@@ -31,7 +31,7 @@ func ExampleTuple2() {
 	printGet(t.T(1))
 
 	// Output:
-	// (2,1), monadgo._tuple2
+	// (2,1), monadgo.Tuple2
 	// 2, string
 	// 2, string
 	// 1, int
@@ -41,10 +41,10 @@ func ExampleTuple2() {
 	// int, *reflect.rtype
 	// int, *reflect.rtype
 	// [2 1], [2]interface {}
-	// (2,1), monadgo._tuple2
+	// (2,1), monadgo.Tuple2
 	// [2 <int Value>], []reflect.Value
 	// 2, int
-	// ([],100), monadgo._tuple2
+	// ([],100), monadgo.Tuple2
 	// [], []int
 	// [], []int
 	// 100, int64

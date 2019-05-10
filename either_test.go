@@ -133,13 +133,13 @@ func ExampleEither2Of() {
 	// false, bool
 	// true, bool
 	// Right((100,ABC)), *monadgo.traitEither
-	// (100,ABC), monadgo._tuple2
+	// (100,ABC), monadgo.Tuple2
 	// 100, int
 	// ABC, string
 	// false, bool
 	// true, bool
 	// Right((10,AB)), *monadgo.traitEither
-	// (10,AB), monadgo._tuple2
+	// (10,AB), monadgo.Tuple2
 	// true, bool
 	// false, bool
 	// Left(error), *monadgo.traitEither
@@ -182,7 +182,7 @@ func ExampleEither_Foreach() {
 	// ok, string
 	// ok, string
 	// 100, int
-	// (ok,100), monadgo._tuple2
+	// (ok,100), monadgo.Tuple2
 	// ok, string
 	// 100, int
 }
@@ -251,7 +251,7 @@ func ExampleEither_Fold() {
 	// 100, int
 	// 20, int
 	// DEF, string
-	// (failure,false), monadgo._pair
+	// (failure,false), monadgo.Pair
 
 }
 
@@ -316,7 +316,7 @@ func ExampleEither_Map() {
 	// Right(ok:Null), *monadgo.traitEither
 	// ok:Null, string
 	// Right((ok:true,1)), *monadgo.traitEither
-	// (ok:true,1), monadgo._pair
+	// (ok:true,1), monadgo.Pair
 	// Right(Null), *monadgo.traitEither
 	// Null, *monadgo._null
 

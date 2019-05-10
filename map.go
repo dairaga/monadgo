@@ -36,7 +36,7 @@ func mapCBF(k, v reflect.Type, x interface{}) Traversable {
 		}
 	}
 
-	if t.rv().Type().Elem().Implements(typePair) {
+	if t.rv().Type().Elem().ConvertibleTo(typePair) {
 		var ret reflect.Value
 		v := t.rv()
 		len := t.Size()
@@ -58,7 +58,7 @@ func mapFromValue(v reflect.Value) Map {
 		return newMap(v)
 	}
 
-	if v.Kind() == reflect.Slice && v.Type().Elem().Implements(typePair) {
+	if v.Kind() == reflect.Slice && v.Type().Elem().ConvertibleTo(typePair) {
 
 		var ret reflect.Value
 
@@ -70,7 +70,7 @@ func mapFromValue(v reflect.Value) Map {
 		return newMap(ret)
 	}
 
-	if v.Type().Implements(typePair) {
+	if v.Type().ConvertibleTo(typePair) {
 		return newMap(oneToMap(v))
 	}
 

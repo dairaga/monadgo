@@ -152,6 +152,7 @@ func bindValues(ftyp reflect.Type, outs []reflect.Value) interface{} {
 }
 
 func bindType(ftyp reflect.Type) reflect.Type {
+	n := ftyp.NumOut()
 
 	switch ftyp.NumOut() {
 	case 0:
@@ -160,11 +161,7 @@ func bindType(ftyp reflect.Type) reflect.Type {
 		return ftyp.Out(0)
 	case 2:
 		return typePair
-	case 3:
-		return typeTuple3
-	case 4:
-		return typeTuple4
 	default:
-		return typeTuple
+		return typeTuples[n-2]
 	}
 }

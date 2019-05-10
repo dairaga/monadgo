@@ -162,7 +162,7 @@ func ExampleLeftProjection_FlatMap() {
 
 	// Output:
 	// Right((100,true)), *monadgo.traitEither
-	// (100,true), monadgo._tuple2
+	// (100,true), monadgo.Tuple2
 	// Right(true), *monadgo.traitEither
 	// true, bool
 }

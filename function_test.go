@@ -31,41 +31,41 @@ func ExampleFuncOf0() {
 
 	f := funcOf(func0)
 	v := f.invoke(unit)
-	fmt.Println(v)
+	printGet(v)
 
 	f = funcOf(func00)
 	v = f.invoke(unit)
-	fmt.Println(v)
+	printGet(v)
 
 	f = funcOf(func01)
 	v = f.invoke(unit)
-	fmt.Println(v)
+	printGet(v)
 
 	f = funcOf(func02)
 	v = f.invoke(unit)
-	fmt.Println(v)
+	printGet(v)
 
 	f = funcOf(func03)
 	v = f.invoke(unit)
-	fmt.Println(v)
+	printGet(v)
 
 	f = funcOf(func04)
 	v = f.invoke(unit)
-	fmt.Println(v)
+	printGet(v)
 
 	f = funcOf(func05)
 	v = f.invoke(unit)
-	fmt.Println(v)
+	printGet(v)
 
 	// Output:
 	// test
-	// Void
-	// Null
-	// 1
-	// (2,AB)
-	// (3,ABC,3.33)
-	// (4,ABCD,4.444,(4+4i))
-	// (5,ABCDE,5.555,(5+5i),53)
+	// Void, monadgo._unit
+	// Null, *monadgo._null
+	// 1, int
+	// (2,AB), monadgo.Pair
+	// (3,ABC,3.33), monadgo.Tuple3
+	// (4,ABCD,4.444,(4+4i)), monadgo.Tuple4
+	// (5,ABCDE,5.555,(5+5i),53), *monadgo.TupleN
 }
 
 // ----------------------------------------------------------------------------

@@ -22,7 +22,7 @@ func ExampleTuple3() {
 	printGet(t.Dimension())
 
 	// Output:
-	// (1,2,3.14), monadgo._tuple3
+	// (1,2,3.14), monadgo.Tuple3
 	// 1, int
 	// 1, int
 	// 2, string
@@ -36,7 +36,7 @@ func ExampleTuple3() {
 	// float64, *reflect.rtype
 	// float64, *reflect.rtype
 	// [1 2 3.14], [3]interface {}
-	// (1,2), monadgo._tuple2
+	// (1,2), monadgo.Tuple2
 	// [<int Value> 2 <float64 Value>], []reflect.Value
 	// 3, int
 }

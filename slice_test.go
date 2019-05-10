@@ -439,8 +439,8 @@ func ExampleSlice_Split() {
 	}))
 
 	// Output:
-	// ([],[]), monadgo._tuple2
-	// ([1],[2 3 4 5]), monadgo._tuple2
+	// ([],[]), monadgo.Tuple2
+	// ([1],[2 3 4 5]), monadgo.Tuple2
 }
 
 func ExampleSlice_Collect() {

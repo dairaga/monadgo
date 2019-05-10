@@ -23,7 +23,7 @@ func ExampleTuple() {
 	printGet(t.Dimension())
 
 	// Output:
-	// (1,2,3.14,(5+7i),true), *monadgo._tuple
+	// (1,2,3.14,(5+7i),true), *monadgo.TupleN
 	// 1, int
 	// 2, string
 	// 3.14, float64
@@ -35,7 +35,7 @@ func ExampleTuple() {
 	// complex128, *reflect.rtype
 	// bool, *reflect.rtype
 	// [1 2 3.14 (5+7i) true], []interface {}
-	// (1,2,3.14,(5+7i)), monadgo._tuple4
+	// (1,2,3.14,(5+7i)), monadgo.Tuple4
 	// [<int Value> 2 <float64 Value> <complex128 Value> <bool Value>], []reflect.Value
 	// 5, int
 }

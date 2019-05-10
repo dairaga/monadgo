@@ -113,13 +113,13 @@ func ExampleTry2Of() {
 	// true
 	// false
 	// Success((100,ABC)), *monadgo.traitTry
-	// (100,ABC), monadgo._tuple2
+	// (100,ABC), monadgo.Tuple2
 	// 100, int
 	// ABC, string
 	// true
 	// false
 	// Success((10,AB)), *monadgo.traitTry
-	// (10,AB), monadgo._tuple2
+	// (10,AB), monadgo.Tuple2
 	// false
 	// true
 	// Failure(error), *monadgo.traitTry
@@ -162,7 +162,7 @@ func ExampleTry_Foreach() {
 	// ok, string
 	// ok, string
 	// 100, int
-	// (ok,100), monadgo._tuple2
+	// (ok,100), monadgo.Tuple2
 	// ok, string
 	// 100, int
 }
@@ -201,7 +201,7 @@ func ExampleTry_Fold() {
 	// 100, int
 	// 20, int
 	// DEF, string
-	// (not ok,false), monadgo._pair
+	// (not ok,false), monadgo.Pair
 
 }
 
@@ -282,7 +282,7 @@ func ExampleTry_Map() {
 	// Success(ok:Null), *monadgo.traitTry
 	// ok:Null, string
 	// Success((ok:true,1)), *monadgo.traitTry
-	// (ok:true,1), monadgo._pair
+	// (ok:true,1), monadgo.Pair
 	// Success(Null), *monadgo.traitTry
 	// Null, *monadgo._null
 

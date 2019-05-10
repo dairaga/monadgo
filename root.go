@@ -31,9 +31,11 @@ var (
 
 var (
 	typeTuple  = reflect.TypeOf((*Tuple)(nil)).Elem()
-	typeTuple2 = reflect.TypeOf((*Tuple2)(nil)).Elem()
-	typeTuple3 = reflect.TypeOf((*Tuple3)(nil)).Elem()
-	typeTuple4 = reflect.TypeOf((*Tuple4)(nil)).Elem()
+	typeTuple2 = reflect.TypeOf(Tuple2{})
+	typeTuple3 = reflect.TypeOf(Tuple3{})
+	typeTuple4 = reflect.TypeOf(Tuple4{})
 
-	typePair = reflect.TypeOf((*Pair)(nil)).Elem()
+	typePair = reflect.TypeOf(Pair{})
+
+	typeTuples = []reflect.Type{typeTuple2, typeTuple3, typeTuple4, typeTuple}
 )
