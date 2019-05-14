@@ -85,8 +85,7 @@ MonadGo is toolkit about implementing Scala monadic operations, like map, flatMa
 
 ### Promise and Future
 
-**Promise** and **Future** represent Promise and Future in Scala. Unlike scala throwing exceptions, assigning new result to completed Promise and Future in MonadGo will take no effect. Promise or Future can be canceled and all futures depending on it will be canceled, too.
+**Promise** and **Future** represent Promise and Future in Scala. Unlike scala throwing exceptions, assigning new result to completed Promise and Future in MonadGo will have no effect. Promise or Future can be canceled and all futures depending on it will be canceled, too.
 
 [Promise in Scala](https://www.scala-lang.org/api/current/scala/concurrent/Promise.html)  
 [Future in Scala](https://www.scala-lang.org/api/current/scala/concurrent/Future.html)
-

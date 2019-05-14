@@ -4,8 +4,8 @@ import (
 	"context"
 )
 
-func ExampleEmptyPromise() {
-	p := EmptyPromise(context.Background())
+func ExampleDefaultPromise() {
+	p := DefaultPromise(context.Background())
 	printGet(p.Completed())
 	p.OnComplete(func(v Try) {
 		printGet(v)
@@ -13,7 +13,7 @@ func ExampleEmptyPromise() {
 
 	p.Success(100)
 
-	p = EmptyPromise(context.Background())
+	p = DefaultPromise(context.Background())
 	printGet(p.Completed())
 	p.OnComplete(func(v Try) {
 		printGet(v)

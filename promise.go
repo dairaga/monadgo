@@ -24,7 +24,8 @@ func (p *Promise) Completed() bool {
 	return p.future != nil && p.future.Completed()
 }
 
-// Complete completes the promise with result.
+// Complete completes the promise with try result.
+// Have no effect on p if p is completed.
 func (p *Promise) Complete(result Try) *Promise {
 	if p.Completed() {
 		return p
@@ -35,7 +36,8 @@ func (p *Promise) Complete(result Try) *Promise {
 	return p
 }
 
-// Success ...
+// Success completes the promise with a Success value v.
+// Have no effect on p if p is completed.
 func (p *Promise) Success(v interface{}) *Promise {
 	if p.Completed() {
 		return p
@@ -44,7 +46,9 @@ func (p *Promise) Success(v interface{}) *Promise {
 	return p.Complete(SuccessOf(v))
 }
 
-// Failure ...
+// Failure completes the promise p with a Failure value v.
+// v must be error or false, otherwise p is completed with a Success v.
+// Have no effect on p if p is completed.
 func (p *Promise) Failure(v interface{}) *Promise {
 	if p.Completed() {
 		return p
@@ -57,6 +61,7 @@ func (p *Promise) Failure(v interface{}) *Promise {
 }
 
 // CompleteWith completes the promise with future.
+// Have no effect on p if p is completed.
 func (p *Promise) CompleteWith(f Future) *Promise {
 	if p.Completed() {
 		return p
@@ -70,18 +75,21 @@ func (p *Promise) CompleteWith(f Future) *Promise {
 }
 
 // ----------------------------------------------------------------------------
-
+// newPromise returns a new Promise from parent's context and assign a function to finish.
 func newPromise(ctx context.Context, f func(Try) Try) *Promise {
 	return &Promise{
 		newFuture(ctx, f),
 	}
 }
 
-// EmptyPromise ...
-func EmptyPromise(ctx context.Context) *Promise {
+// DefaultPromise returns a new Promise from parent's context,
+// and wait for inputing value to complete the promise.
+func DefaultPromise(ctx context.Context) *Promise {
 	return newPromise(ctx, nil)
 }
 
+// unitPromise is a Promise with unit value.
+// It is a root promise.
 var unitPromise *Promise
 
 func init() {

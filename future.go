@@ -8,19 +8,40 @@ import (
 	"time"
 )
 
+// cancelFailure is a Failure value for canceling a future.
 var cancelFailure = FailureOf(fmt.Errorf("user cancel"))
 
 // Future represents scala-like Future.
 type Future interface {
+	// fmt.Stringer force to implement String() string.
 	fmt.Stringer
 
+	// Completed returns true if the future is comleted.
+	// A future is completed when future is completed with a Success or Failure,
+	// or it is canceled.
 	Completed() bool
+
+	// OnComplete adds a callback function invoked when future is completed.
 	OnComplete(func(Try))
 
+	// Map applies the function to successful future.
+	// f: func(T) U
+	// returns a new Future if Success,
+	// or itself if it is completed and failure.
 	Map(f interface{}) Future
+
+	// FlatMap binds the function f across successful future.
+	// f: func(T) Future.
+	// returns a new Future if Success,
+	// or itself if it is completed and failure, or failure in future.
 	FlatMap(f interface{}) Future
 
+	// Recover applies the function to failure future.
+	// f: func(error or false) U
+	// returns a new future if it is failure,
+	// or itself if it is completed and successful.
 	Recover(f interface{}) Future
+
 	RecoverWith(f interface{}) Future
 
 	Foreach(f interface{})
@@ -86,7 +107,7 @@ func (u *future) transform(f func(Try) Try) Future {
 }
 
 func (u *future) transformWith(f func(Try) Future) Future {
-	e := EmptyPromise(u.ctx)
+	e := DefaultPromise(u.ctx)
 
 	u.OnComplete(func(v Try) {
 		n := f(v)
