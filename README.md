@@ -2,7 +2,7 @@
 
 MonadGo is toolkit about implementing Scala monadic operations, like map, flatMap, fold, foreach, forall and etc. It is used in internal tools of [Cyberon Corporation](https://www.cyberon.com.tw/projects/cyberon_web/english/index.html.php).
 
-[About Cyberon Corporation](https://www.cyberon.com.tw/projects/cyberon_web/english/index.html.php)
+[About Cyberon Corporation](https://www.cyberon.com.tw/projects/cyberon_web/english/index.html.php)  
 [About Scala](https://www.scala-lang.org/)
 
 ## Data Types
@@ -82,3 +82,10 @@ MonadGo is toolkit about implementing Scala monadic operations, like map, flatMa
 **PartialFunc** represents PartialFunction in Scala. It consists of Condition and Action funtions. **Condition** checks input is valid or not, and then returns result from invoking **Action** on input if input is valid.
 
 [PartialFunction in Scala](https://www.scala-lang.org/api/current/scala/PartialFunction.html)
+
+### Promise and Future
+
+**Promise** and **Future** represent Promise and Future in Scala. Unlike scala throwing exceptions, assigning new result to completed Promise and Future in MonadGo will take no effect. Promise or Future can be canceled and all futures depending on it will be canceled, too.
+
+[Promise in Scala](https://www.scala-lang.org/api/current/scala/concurrent/Promise.html)  
+[Future in Scala](https://www.scala-lang.org/api/current/scala/concurrent/Future.html)
