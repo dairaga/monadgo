@@ -185,30 +185,35 @@ func SuccessOf(x interface{}) Try {
 	return tryFromContainer(containerOf(x), true)
 }
 
-/*
-// tryFromTuple return a Try from Tuple.
-func tryFromTuple(t Tuple) Try {
-	x := t.V(t.Dimension() - 1)
-	if isErrorOrFalse(x) {
-		return FailureOf(x)
-	}
+func tryFromX(x interface{}) Try {
 
-	reduce := false
-	switch x.(type) {
-	case error, bool:
-		reduce = true
-	}
-
-	if t.Dimension() > 2 {
-		if reduce {
-			return SuccessOf(t.reduce())
+	switch v := x.(type) {
+	case Try:
+		return v
+	case bool:
+		if v {
+			return SuccessOf(v)
 		}
-		return SuccessOf(t)
+		return FailureOf(v)
+	case error:
+		if v != nil {
+			return FailureOf(v)
+		}
+		return SuccessOf(nil)
+	case Tuple:
+		switch v.Dimension() {
+		case 2:
+			return try1Of(v.V(0), v.V(1))
+		case 3:
+			return try2Of(v.V(0), v.V(1), v.V(2))
+		default:
+			return tryNOf(v)
+		}
+	default:
+		return SuccessOf(x)
 	}
 
-	return SuccessOf(t.V(0))
 }
-*/
 
 // TryOf returns a Try.
 // The last argument must be bool or error type.
@@ -229,11 +234,7 @@ func TryOf(x ...interface{}) Try {
 		return try2Of(x[0], x[1], x[2])
 	default:
 		t := TupleOf(x)
-		last := t.V(t.Dimension() - 1)
-		if isErrorOrFalse(last) {
-			return FailureOf(last)
-		}
-		return SuccessOf(t.reduce())
+		return tryNOf(t)
 	}
 
 }
@@ -260,4 +261,12 @@ func try2Of(x1, x2, errOrFalse interface{}) Try {
 	}
 
 	return SuccessOf(Tuple2Of(x1, x2))
+}
+
+func tryNOf(t Tuple) Try {
+	last := t.V(t.Dimension() - 1)
+	if isErrorOrFalse(last) {
+		return FailureOf(last)
+	}
+	return SuccessOf(t.reduce())
 }
