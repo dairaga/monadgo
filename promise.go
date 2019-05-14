@@ -2,16 +2,26 @@ package monadgo
 
 import (
 	"context"
+	"fmt"
+	"sync"
 )
 
 // Promise represents scala-like Promise.
 type Promise struct {
-	Future
+	*future
+}
+
+func (p *Promise) String() string {
+	if p.Completed() {
+		return fmt.Sprintf("Promise(%v)", p.future.val)
+	}
+
+	return "Promise(Not Yet)"
 }
 
 // Completed return true if the promise is completed.
 func (p *Promise) Completed() bool {
-	return p.Future != nil && p.Future.Completed()
+	return p.future != nil && p.future.Completed()
 }
 
 // Complete completes the promise with result.
@@ -20,7 +30,7 @@ func (p *Promise) Complete(result Try) *Promise {
 		return p
 	}
 
-	//p.Future = futureFromTry(context.Background(), result)
+	p.future.in <- result
 
 	return p
 }
@@ -52,17 +62,36 @@ func (p *Promise) CompleteWith(f Future) *Promise {
 		return p
 	}
 
-	p.Future = f
+	f.OnComplete(func(v Try) {
+		p.future.in <- v
+	})
+
 	return p
 }
 
 // ----------------------------------------------------------------------------
 
-var unitPromise = (&Promise{}).Success(unit)
+func newPromise(ctx context.Context, f func(Try) Try) *Promise {
+	return &Promise{
+		newFuture(ctx, f),
+	}
+}
 
 // EmptyPromise ...
 func EmptyPromise(ctx context.Context) *Promise {
-	return &Promise{
-		Future: emptyFuture(ctx),
+	return newPromise(ctx, nil)
+}
+
+var unitPromise *Promise
+
+func init() {
+	unitPromise = &Promise{
+		&future{
+			completed: true,
+			val:       SuccessOf(unit),
+			mux:       &sync.Mutex{},
+		},
 	}
+
+	unitPromise.ctx, unitPromise.cancel = context.WithCancel(context.Background())
 }

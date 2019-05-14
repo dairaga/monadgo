@@ -2,8 +2,12 @@ package monadgo
 
 import (
 	"context"
+	"fmt"
 	"sync"
+	"time"
 )
+
+var cancelFailure = FailureOf(fmt.Errorf("user cancel"))
 
 // Future represents scala-like Future.
 type Future interface {
@@ -13,6 +17,10 @@ type Future interface {
 	Foreach(f interface{})
 	Map(f interface{}) Future
 	FlatMap(f interface{}) Future
+
+	fmt.Stringer
+	Ready(atMost time.Duration) Option
+	Result(atMost time.Duration) Option
 }
 
 // ----------------------------------------------------------------------------
@@ -20,6 +28,7 @@ type Future interface {
 type future struct {
 	completed bool
 	in        chan Try
+	done      chan bool
 	ctx       context.Context
 	cancel    context.CancelFunc
 	val       Try
@@ -32,26 +41,16 @@ var _ Future = &future{}
 func (u *future) register(f func(Try)) {
 	defer u.mux.Unlock()
 	u.mux.Lock()
+
 	u.next = append(u.next, f)
 }
 
-func (u *future) transform(f func(Try) Try) Future {
-	e := EmptyPromise(u.ctx)
+func (u *future) String() string {
+	if u.completed {
+		return fmt.Sprintf("Future(%v)", u.val)
+	}
 
-	u.OnComplete(func(v Try) {
-		e.Complete(f(v))
-	})
-	return e
-}
-
-func (u *future) transformWith(f func(Try) Future) Future {
-	e := EmptyPromise(u.ctx)
-
-	u.OnComplete(func(v Try) {
-		e.CompleteWith(f(v))
-	})
-
-	return e
+	return "Future(Not Yet)"
 }
 
 func (u *future) Completed() bool {
@@ -63,12 +62,34 @@ func (u *future) OnComplete(f func(Try)) {
 		f(u.val)
 		return
 	}
+
 	u.register(f)
+}
+
+func (u *future) transform(f func(Try) Try) Future {
+	e := newPromise(u.ctx, f)
+
+	u.OnComplete(func(v Try) {
+		e.future.in <- v
+	})
+	return e
+}
+
+func (u *future) transformWith(f func(Try) Future) Future {
+	e := newPromise(u.ctx, nil)
+
+	u.OnComplete(func(v Try) {
+		n := f(v)
+
+		e.CompleteWith(n)
+	})
+
+	return e
 }
 
 func (u *future) Value() Option {
 	if u.Completed() {
-		return SomeOf(u.val)
+		return u.val.ToOption()
 	}
 	return None
 }
@@ -78,20 +99,116 @@ func (u *future) Foreach(f interface{}) {
 }
 
 func (u *future) Map(f interface{}) Future {
+	if u.completed && u.val.Failed() {
+		return u
+	}
 	ft := func(v Try) Try {
-		if v.OK() {
-			x := funcOf(f).invoke(v.Get())
-			return tryFromX(x)
-		}
-		return v
+		x := funcOf(f).invoke(v.Get())
+		return tryFromX(x)
 	}
 
 	return u.transform(ft)
 }
 
 func (u *future) FlatMap(f interface{}) Future {
-	return nil
+	if u.completed && u.val.Failed() {
+		return u
+	}
+
+	ft := func(v Try) Future {
+		return funcOf(f).invoke(v.Get()).(Future)
+	}
+
+	return u.transformWith(ft)
 }
+
+func (u *future) Ready(atMost time.Duration) Option {
+	if u.completed {
+		return SomeOf(u)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), atMost)
+	defer cancel()
+
+	u.OnComplete(func(Try) {
+		u.done <- true
+	})
+
+	select {
+	case <-u.done:
+		return SomeOf(u)
+	case <-ctx.Done():
+		return None
+	}
+}
+
+func (u *future) Result(atMost time.Duration) Option {
+	x := u.Ready(atMost)
+
+	return x.FlatMap(func(f Future) Option {
+		return f.Value()
+	})
+}
+
+// ----------------------------------------------------------------------------
+
+func initFuture(ctx context.Context) *future {
+	ret := &future{mux: &sync.Mutex{}}
+	ret.ctx, ret.cancel = context.WithCancel(ctx)
+	ret.in = make(chan Try)
+	ret.done = make(chan bool)
+	return ret
+}
+
+func newFuture(ctx context.Context, f func(Try) Try) *future {
+	ret := initFuture(ctx)
+
+	go func() {
+		defer func() {
+			close(ret.in)
+			close(ret.done)
+		}()
+
+		select {
+		case <-ret.ctx.Done():
+			ret.val = cancelFailure
+			ret.completed = true
+			defer ret.mux.Unlock()
+			ret.mux.Lock()
+			ret.next = nil
+			return
+		case x, ok := <-ret.in:
+			if !ok {
+				return
+			}
+			if f != nil {
+				ret.val = f(x)
+			} else {
+				ret.val = x
+			}
+
+			ret.completed = true
+
+			defer ret.mux.Unlock()
+			ret.mux.Lock()
+
+			for _, callback := range ret.next {
+				callback(ret.val)
+			}
+			ret.next = nil
+
+		}
+	}()
+
+	return ret
+}
+
+// FutureOf returns a future.
+func FutureOf(f interface{}) Future {
+	return unitPromise.Map(f)
+}
+
+/*
 
 // ----------------------------------------------------------------------------
 
@@ -107,8 +224,4 @@ func futureFromTry(ctx context.Context, result Try) *future {
 	ret.completed = true
 	return ret
 }
-
-// FutureOf returns a future.
-func FutureOf(f interface{}) Future {
-	return unitPromise.Map(f)
-}
+*/

@@ -186,11 +186,20 @@ func SuccessOf(x interface{}) Try {
 }
 
 func tryFromX(x interface{}) Try {
-	if isErrorOrFalse(x) {
-		return FailureOf(x)
-	}
 
 	switch v := x.(type) {
+	case Try:
+		return v
+	case bool:
+		if v {
+			return SuccessOf(v)
+		}
+		return FailureOf(v)
+	case error:
+		if v != nil {
+			return FailureOf(v)
+		}
+		return SuccessOf(nil)
 	case Tuple:
 		switch v.Dimension() {
 		case 2:
