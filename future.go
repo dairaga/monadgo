@@ -32,26 +32,46 @@ type Future interface {
 
 	// FlatMap binds the function f across successful future.
 	// f: func(T) Future.
-	// returns a new Future if Success,
+	// returns a new Future if it is successful,
 	// or itself if it is completed and failure, or failure in future.
 	FlatMap(f interface{}) Future
 
 	// Recover applies the function to failure future.
-	// f: func(error or false) U
+	// f: func(error or bool) U
 	// returns a new future if it is failure,
 	// or itself if it is completed and successful.
 	Recover(f interface{}) Future
 
+	// RecoverWith binds the function f across failure future.
+	// f: func(error or bool) Future.
+	// returns a new Future if it is failure,
+	// or itself if it is completed and failure, or failure in future.
 	RecoverWith(f interface{}) Future
 
+	// Foreach applies function f on future's value.
+	// f: func(T)
 	Foreach(f interface{})
+
+	// Filter returns a successful future if it is satisfying f, otherwise return failure future.
+	// f: func(T) bool
 	Filter(f interface{}) Future
+
+	// Collect returns a successful future if is is satisfying pf, otherwise return failure future.
+	// pf is a partial function consisting of Condition func(T) bool and Action func(T) X.
+	// returns a new future with type X.
 	Collect(pf PartialFunc) Future
 
+	// Value returns Some of value if future is comleted successfully, otherwise return None.
 	Value() Option
+
+	// Ready waits at most duration and returns Some of future if future is completed, otherwise return None.
 	Ready(atMost time.Duration) Option
+
+	// Result waits at most duration and returns Some of value if future is completed successfully, otherwise return None.
 	Result(atMost time.Duration) Option
 
+	// Cancel cancels the future if it is not completed.
+	// Can not cancel a completed future.
 	Cancel()
 }
 
@@ -250,7 +270,9 @@ func (u *future) Collect(pf PartialFunc) Future {
 }
 
 func (u *future) Cancel() {
-	u.cancel()
+	if !u.completed {
+		u.cancel()
+	}
 }
 
 // ----------------------------------------------------------------------------
