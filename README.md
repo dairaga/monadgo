@@ -2,12 +2,7 @@
 
 MonadGo is toolkit about implementing Scala monadic operations, like map, flatMap, fold, foreach, forall and etc. It is used in internal tools of [Cyberon Corporation](https://www.cyberon.com.tw/projects/cyberon_web/english/index.html.php).
 
-<<<<<<< HEAD
-[About Cyberon Corporation](https://www.cyberon.com.tw/projects/cyberon_web/english/index.html.php)
-
-=======
 [About Cyberon Corporation](https://www.cyberon.com.tw/projects/cyberon_web/english/index.html.php)  
->>>>>>> promise_future
 [About Scala](https://www.scala-lang.org/)
 
 ## Data Types
