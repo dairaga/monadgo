@@ -54,7 +54,7 @@ func (p *Promise) Failure(v interface{}) *Promise {
 		return p
 	}
 
-	if isErrorOrFalse(v) {
+	if yes, _ := isErrorOrFalse(v); yes {
 		return p.Complete(FailureOf(v))
 	}
 	return p.Success(v)

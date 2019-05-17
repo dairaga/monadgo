@@ -6,55 +6,55 @@ import (
 )
 
 func TestLeftProjection(t *testing.T) {
-	e := EitherOf(nil)
+	e := RightOf(nil)
 
 	if e.Left().E() != e {
 		t.Errorf("prjection faiure for Right")
 	}
 
-	e = EitherOf(fmt.Errorf("error"))
+	e = LeftOf(fmt.Errorf("error"))
 	if e.Left().E() != e {
 		t.Errorf("prjection faiure for Left")
 	}
 
-	e = EitherOf(true)
+	e = RightOf(true)
 	if e.Left().E() != e {
 		t.Errorf("prjection faiure for Right")
 	}
 
-	e = EitherOf(false)
+	e = LeftOf(false)
 	if e.Left().E() != e {
 		t.Errorf("prjection faiure for Left")
 	}
 }
 
 func ExampleLeftProjection_Foreach() {
-	EitherOf(false).Left().Foreach(func(bool) {
+	LeftOf(false).Left().Foreach(func(bool) {
 		fmt.Println("false")
 	})
 
-	EitherOf(fmt.Errorf("x")).Left().Foreach(func(err error) {
+	LeftOf(fmt.Errorf("x")).Left().Foreach(func(err error) {
 		fmt.Println(err)
 	})
 
-	EitherOf(true).Left().Foreach(func(x bool) {
+	RightOf(true).Left().Foreach(func(x bool) {
 		printGet(x)
 	})
 
-	EitherOf("ok", true).Left().Foreach(func(x string) {
+	RightOf("ok").Left().Foreach(func(x string) {
 		printGet(x)
 	})
 
-	EitherOf("ok", 100, nil).Left().Foreach(func(t Tuple2) {
+	RightOf("ok", 100).Left().Foreach(func(t Tuple2) {
 		printGet(t.V1())
 		printGet(t.V2())
 	})
 
-	EitherOf("ok", 100, nil).Left().Foreach(func(t Tuple) {
+	RightOf("ok", 100).Left().Foreach(func(t Tuple) {
 		printGet(t)
 	})
 
-	EitherOf("ok", 100, nil).Left().Foreach(func(x1 string, x2 int) {
+	RightOf("ok", 100).Left().Foreach(func(x1 string, x2 int) {
 		printGet(x1)
 		printGet(x2)
 	})
@@ -65,25 +65,25 @@ func ExampleLeftProjection_Foreach() {
 }
 
 func ExampleLeftProjection_Forall() {
-	v := EitherOf(false).Left().Forall(func(x bool) bool {
+	v := LeftOf(false).Left().Forall(func(x bool) bool {
 		// Left and apply returning true.
 		return true
 	})
 	printGet(v)
 
-	v = EitherOf(nil).Left().Forall(func() bool {
+	v = RightOf(nil).Left().Forall(func() bool {
 		// Right and always return true
 		return false
 	})
 	printGet(v)
 
-	v = EitherOf("ABC", true).Left().Forall(func(x string) bool {
+	v = RightOf("ABC").Left().Forall(func(x string) bool {
 		// Right and always return true
 		return len(x) < 2
 	})
 	printGet(v)
 
-	v = EitherOf("ABC", 10, true).Left().Forall(func(x1 string, x2 int) bool {
+	v = RightOf("ABC", 10).Left().Forall(func(x1 string, x2 int) bool {
 		// Right and always return true
 		return len(x1) < 2 || x2 < 5
 	})
@@ -97,15 +97,15 @@ func ExampleLeftProjection_Forall() {
 }
 
 func ExampleLeftProjection_GetOrElse() {
-	v := EitherOf(false).Left().GetOrElse(func() int {
+	v := LeftOf(false).Left().GetOrElse(func() int {
 		return 10
 	})
 	printGet(v)
 
-	v = EitherOf(false).Left().GetOrElse(100)
+	v = LeftOf(false).Left().GetOrElse(100)
 	printGet(v)
 
-	v = EitherOf(true).Left().GetOrElse(200)
+	v = RightOf(true).Left().GetOrElse(200)
 	printGet(v)
 
 	// Output:
@@ -115,24 +115,24 @@ func ExampleLeftProjection_GetOrElse() {
 }
 
 func ExampleLeftProjection_Map() {
-	v := EitherOf(false).Left().Map(func(x bool) string {
+	v := LeftOf(false).Left().Map(func(x bool) string {
 		return fmt.Sprintf("ok:%v", x)
 	})
 	printGet(v)
 	printGet(v.Get())
 
-	v = EitherOf(fmt.Errorf("error")).Left().Map(func(x error) string {
+	v = LeftOf(fmt.Errorf("error")).Left().Map(func(x error) string {
 		return fmt.Sprintf("ok:%v", x)
 	})
 	printGet(v)
 	printGet(v.Get())
 
-	v = EitherOf(true).Left().Map(func(x bool) string {
+	v = RightOf(true).Left().Map(func(x bool) string {
 		return fmt.Sprintf("ok:%v", x)
 	})
 	printGet(v)
 
-	v = EitherOf((error)(nil)).Left().Map(func(x Null) string {
+	v = RightOf((error)(nil)).Left().Map(func(x Null) string {
 		return fmt.Sprintf("ok:%v", x)
 	})
 	printGet(v)
@@ -148,14 +148,14 @@ func ExampleLeftProjection_Map() {
 }
 
 func ExampleLeftProjection_FlatMap() {
-	v := EitherOf(false).Left().FlatMap(func(x bool) Either {
+	v := LeftOf(false).Left().FlatMap(func(x bool) Either {
 		return RightOf(100, true)
 	})
 	printGet(v)
 	printGet(v.Get())
 
-	v = EitherOf(true).Left().FlatMap(func(x bool) Either {
-		return EitherOf(100, true)
+	v = RightOf(true).Left().FlatMap(func(x bool) Either {
+		return RightOf(100)
 	})
 	printGet(v)
 	printGet(v.Get())
@@ -168,16 +168,16 @@ func ExampleLeftProjection_FlatMap() {
 }
 
 func ExampleLeftProjection_ToOption() {
-	v := EitherOf(false).Left().ToOption()
+	v := LeftOf(false).Left().ToOption()
 	printGet(v)
 
-	v = EitherOf(fmt.Errorf("error")).Left().ToOption()
+	v = LeftOf(fmt.Errorf("error")).Left().ToOption()
 	printGet(v)
 
-	v = EitherOf(nil).Left().ToOption()
+	v = RightOf(nil).Left().ToOption()
 	printGet(v)
 
-	v = EitherOf(10, true).Left().ToOption()
+	v = RightOf(10).Left().ToOption()
 	printGet(v)
 
 	// Output:

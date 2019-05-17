@@ -2,6 +2,7 @@ package monadgo
 
 import (
 	"fmt"
+	"reflect"
 )
 
 // Either represents scala-like Either[A,B].
@@ -66,7 +67,15 @@ type Either interface {
 
 type traitEither struct {
 	right bool
-	container
+	v     reflect.Value
+}
+
+func (e *traitEither) Get() interface{} {
+	return e.v.Interface()
+}
+
+func (e *traitEither) rv() reflect.Value {
+	return e.v
 }
 
 func (e *traitEither) String() string {
@@ -95,7 +104,7 @@ func (e *traitEither) Forall(f interface{}) bool {
 		return true
 	}
 
-	return e.container.Forall(f)
+	return funcOf(f).call(e.v).Bool()
 }
 
 func (e *traitEither) FilterOrElse(p, z interface{}) Either {
@@ -103,7 +112,7 @@ func (e *traitEither) FilterOrElse(p, z interface{}) Either {
 		return e
 	}
 
-	if e.invoke(p).Bool() {
+	if funcOf(p).call(e.v).Bool() {
 		return e
 	}
 
@@ -114,27 +123,29 @@ func (e *traitEither) Exists(f interface{}) bool {
 	if e.IsLeft() {
 		return false
 	}
-
-	return e.invoke(f).Bool()
+	return funcOf(f).call(e.v).Bool()
 }
 
 func (e *traitEither) Foreach(f interface{}) {
 	if e.IsRight() {
-		e.container.Foreach(f)
+		funcOf(f).call(e.v)
 	}
 }
 
 func (e *traitEither) Fold(z, f interface{}) interface{} {
 	if e.IsLeft() {
-		return e.invoke(z).Interface()
+		return funcOf(z).call(e.v).Interface()
 	}
 
-	return e.invoke(f).Interface()
+	return funcOf(f).call(e.v).Interface()
 }
 
 func (e *traitEither) Map(f interface{}) Either {
 	if e.right {
-		return eitherFromContainer(true, e._map(f))
+		return &traitEither{
+			right: true,
+			v:     funcOf(f).call(e.v),
+		}
 	}
 
 	return e
@@ -142,7 +153,7 @@ func (e *traitEither) Map(f interface{}) Either {
 
 func (e *traitEither) FlatMap(f interface{}) Either {
 	if e.right {
-		return e._flatMap(f).(Either)
+		return funcOf(f).call(e.v).Interface().(Either)
 	}
 	return e
 }
@@ -164,81 +175,50 @@ func (e *traitEither) ToOption() Option {
 
 // ----------------------------------------------------------------------------
 
-func eitherFromContainer(right bool, c container) Either {
-	return &traitEither{
-		right:     right,
-		container: c,
-	}
-}
-
-func newEither(right bool, x ...interface{}) Either {
-	switch len(x) {
-	case 0:
-		return eitherFromContainer(right, nothingContainer)
-	case 1:
-		return eitherFromContainer(right, containerOf(x[0]))
-	default:
-		return eitherFromContainer(right, containerOf(TupleOf(x)))
-	}
-}
-
 // LeftOf returns Left of x.
 func LeftOf(x ...interface{}) Either {
-	return newEither(false, x...)
+	return eitherCBF(false, x...)
 }
 
 // RightOf returns Right of x.
 func RightOf(x ...interface{}) Either {
-	return newEither(true, x...)
+	return eitherCBF(true, x...)
 }
 
-// EitherOf returns a Either.
-// The last argument must be bool or error type.
-// Return Left if errOrFalse is false or error existing,
-// or Right of Null.
-func EitherOf(x ...interface{}) Either {
-	switch len(x) {
-	case 0:
-		return RightOf(unit)
+func eitherCBF(right bool, x ...interface{}) Either {
+	len := len(x)
+
+	if len == 0 {
+		return &traitEither{
+			right: right,
+			v:     unitValue,
+		}
+	}
+
+	switch len {
 	case 1:
-		if isErrorOrFalse(x[0]) {
-			return LeftOf(x[0])
+		switch v := x[0].(type) {
+		case Either:
+			return v
+		case reflect.Value:
+			return eitherCBF(right, v.Interface())
+		default:
+			if v == nil {
+				return &traitEither{
+					right: right,
+					v:     nullValue,
+				}
+			}
+			return &traitEither{
+				right: right,
+				v:     reflect.ValueOf(x[0]),
+			}
 		}
-		return RightOf(x[0])
-	case 2:
-		return either1Of(x[0], x[1])
-	case 3:
-		return either2Of(x[0], x[1], x[2])
+
 	default:
-		t := TupleOf(x)
-		last := t.V(t.Dimension() - 1)
-		if isErrorOrFalse(last) {
-			return LeftOf(last)
+		return &traitEither{
+			right: right,
+			v:     reflect.ValueOf(TupleOf(x)),
 		}
-		return RightOf(t.reduce())
 	}
-}
-
-// either1Of returns a Either.
-// errOrFalse must be bool or error type.
-// Return Left if errOrFalse is false or error existing,
-// or Right of x.
-func either1Of(x, errOrFalse interface{}) Either {
-	if isErrorOrFalse(errOrFalse) {
-		return LeftOf(errOrFalse)
-	}
-
-	return RightOf(x)
-}
-
-// either2Of returns a Try.
-// errOrFalse must be bool or error type.
-// Return Left if errOrFalse is false or error existing,
-// or Right of Tuple2(x1,x2).
-func either2Of(x1, x2, errOrFalse interface{}) Either {
-	if isErrorOrFalse(errOrFalse) {
-		return LeftOf(errOrFalse)
-	}
-
-	return RightOf(Tuple2Of(x1, x2))
 }

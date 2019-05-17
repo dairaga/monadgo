@@ -64,12 +64,12 @@ func (p *leftProjection) Get() interface{} {
 	return p.e.Get()
 }
 
-func (p *leftProjection) String() string {
-	return fmt.Sprintf("LeftProjection(%v)", p.Get())
+func (p *leftProjection) rv() reflect.Value {
+	return p.e.v
 }
 
-func (p *leftProjection) rv() reflect.Value {
-	return p.e.rv()
+func (p *leftProjection) String() string {
+	return fmt.Sprintf("LeftProjection(%v)", p.Get())
 }
 
 func (p *leftProjection) E() Either {
@@ -81,15 +81,14 @@ func (p *leftProjection) Exists(f interface{}) bool {
 		return false
 	}
 
-	return p.e.invoke(f).Bool()
+	return funcOf(f).call(p.e.v).Bool()
 }
 
 func (p *leftProjection) Filter(f interface{}) Option {
 	if p.e.IsRight() {
 		return None
 	}
-
-	if p.e.invoke(f).Bool() {
+	if funcOf(f).call(p.e.v).Bool() {
 		return OptionOf(p.E())
 	}
 
@@ -101,20 +100,19 @@ func (p *leftProjection) FlatMap(f interface{}) Either {
 		return p.E()
 	}
 
-	return p.e._flatMap(f).(Either)
+	return funcOf(f).call(p.e.v).Interface().(Either)
 }
 
 func (p *leftProjection) Forall(f interface{}) bool {
 	if p.e.IsRight() {
 		return true
 	}
-
-	return p.e.invoke(f).Bool()
+	return funcOf(f).call(p.e.v).Bool()
 }
 
 func (p *leftProjection) Foreach(f interface{}) {
 	if p.e.IsLeft() {
-		p.e.invoke(f)
+		funcOf(f).call(p.e.v)
 	}
 }
 
@@ -131,7 +129,7 @@ func (p *leftProjection) Map(f interface{}) Either {
 		return p.E()
 	}
 
-	return eitherFromContainer(false, p.e._map(f))
+	return LeftOf(funcOf(f).call(p.e.v))
 }
 
 func (p *leftProjection) ToOption() Option {

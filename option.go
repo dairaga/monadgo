@@ -1,6 +1,9 @@
 package monadgo
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 // OptionOrElse is function type for Option.OrElse.
 type OptionOrElse func() Option
@@ -49,20 +52,19 @@ type Option interface {
 	GetOrElse(z interface{}) interface{}
 }
 
-// OptionOf returns a Option.
-func OptionOf(x interface{}) Option {
-	c, ok := x.(container)
-	if !ok {
-		c = containerOf(x)
-	}
-
-	return &traitOption{c}
-}
-
 // ----------------------------------------------------------------------------
 
 type traitOption struct {
-	container
+	empty bool
+	v     reflect.Value
+}
+
+func (o *traitOption) Get() interface{} {
+	return o.v.Interface()
+}
+
+func (o *traitOption) rv() reflect.Value {
+	return o.v
 }
 
 func (o *traitOption) String() string {
@@ -78,7 +80,7 @@ func (o *traitOption) Defined() bool {
 
 func (o *traitOption) Map(f interface{}) Option {
 	if !o.empty {
-		return &traitOption{o._map(f)}
+		return optionCBF(funcOf(f).call(o.v))
 	}
 
 	return None
@@ -86,7 +88,7 @@ func (o *traitOption) Map(f interface{}) Option {
 
 func (o *traitOption) FlatMap(f interface{}) Option {
 	if !o.empty {
-		return o._flatMap(f).(Option)
+		return funcOf(f).call(o.v).Interface().(Option)
 	}
 
 	return None
@@ -97,7 +99,7 @@ func (o *traitOption) Fold(z, f interface{}) interface{} {
 		return checkAndInvoke(z)
 	}
 
-	return o.invoke(f).Interface()
+	return funcOf(f).call(o.v).Interface()
 }
 
 func (o *traitOption) GetOrElse(z interface{}) interface{} {
@@ -116,12 +118,76 @@ func (o *traitOption) OrElse(f OptionOrElse) Option {
 	return o
 }
 
+func (o *traitOption) Forall(f interface{}) bool {
+	if o.empty {
+		return true
+	}
+
+	return funcOf(f).call(o.v).Bool()
+}
+
+func (o *traitOption) Foreach(f interface{}) {
+	if !o.empty {
+		funcOf(f).call(o.v)
+	}
+}
+
+func (o *traitOption) Empty() bool {
+	return o.empty
+}
+
+// ------------------------------------------------
+
+func optionCBF(x ...interface{}) Option {
+	len := len(x)
+
+	switch len {
+	case 0:
+		return &traitOption{
+			empty: false,
+			v:     unitValue,
+		}
+	case 1:
+		switch v := x[0].(type) {
+		case Option:
+			return v
+		case *_nothing:
+			return None
+		case reflect.Value:
+			return optionCBF(v.Interface())
+		default:
+			if v == nil {
+				return &traitOption{
+					empty: false,
+					v:     nullValue,
+				}
+			}
+
+			return &traitOption{
+				empty: false,
+				v:     reflect.ValueOf(x[0]),
+			}
+		}
+
+	default:
+		return &traitOption{
+			empty: false,
+			v:     reflect.ValueOf(TupleOf(x)),
+		}
+	}
+}
+
 // ------------------------------------------------
 
 // None represents scala-like None.
-var None Option = &traitOption{nothingContainer}
+var None Option = &traitOption{empty: true, v: nothingValue}
 
 // SomeOf returns Option, maybe None.
-func SomeOf(x interface{}) Option {
-	return OptionOf(x)
+func SomeOf(x ...interface{}) Option {
+	return optionCBF(x...)
+}
+
+// OptionOf returns a Option.
+func OptionOf(x ...interface{}) Option {
+	return optionCBF(x...)
 }

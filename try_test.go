@@ -274,6 +274,12 @@ func ExampleTry_Map() {
 	printGet(v)
 	printGet(v.Get())
 
+	v = TryOf(true).Map(func(x bool) (int, error) {
+		return 0, fmt.Errorf("test error")
+	})
+	printGet(v)
+	printGet(v.Get())
+
 	// Output:
 	// Failure(false), *monadgo.traitTry
 	// Failure(error), *monadgo.traitTry
@@ -285,6 +291,8 @@ func ExampleTry_Map() {
 	// (ok:true,1), monadgo.Pair
 	// Success(Null), *monadgo.traitTry
 	// Null, *monadgo._null
+	// Failure(test error), *monadgo.traitTry
+	// test error, *errors.errorString
 
 }
 

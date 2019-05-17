@@ -161,7 +161,7 @@ func (u *future) Map(f interface{}) Future {
 			return v
 		}
 		x := funcOf(f).invoke(v.Get())
-		return tryFromX(x)
+		return tryCBF(x)
 	}
 
 	return u.transform(ft)
@@ -177,7 +177,7 @@ func (u *future) Recover(f interface{}) Future {
 			return v
 		}
 		x := funcOf(f).invoke(v.Get())
-		return tryFromX(x)
+		return tryCBF(x)
 	}
 
 	return u.transform(ft)

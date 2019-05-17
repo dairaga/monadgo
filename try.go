@@ -56,7 +56,15 @@ type Try interface {
 
 type traitTry struct {
 	ok bool
-	container
+	v  reflect.Value
+}
+
+func (t *traitTry) Get() interface{} {
+	return t.v.Interface()
+}
+
+func (t *traitTry) rv() reflect.Value {
+	return t.v
 }
 
 func (t *traitTry) String() string {
@@ -76,7 +84,7 @@ func (t *traitTry) Failed() bool {
 
 func (t *traitTry) Foreach(f interface{}) {
 	if t.ok {
-		t.container.Foreach(f)
+		funcOf(f).call(t.v)
 	}
 }
 
@@ -86,31 +94,22 @@ func (t *traitTry) Fold(z, f interface{}) interface{} {
 
 	if !t.ok {
 		if ztyp.Kind() == reflect.Func {
-			return t.invoke(z).Interface()
+			return funcOf(z).call(t.v).Interface()
 		}
 		return z
 	}
 
-	ret := t.container.invoke(f).Interface()
-
-	var x interface{}
-	v, ok := ret.(Tuple)
-	if ok {
-		x = v.V(v.Dimension() - 1)
-	} else {
-		x = ret
+	result := tryCBF(funcOf(f).call(t.v))
+	if result.OK() {
+		return result.Get()
 	}
 
-	if !isErrorOrFalse(x) {
-		return ret
-	}
-
-	return FailureOf(x).Fold(z, nil)
+	return result.Fold(z, nil)
 }
 
 func (t *traitTry) Map(f interface{}) Try {
 	if t.ok {
-		return tryFromContainer(t._map(f), true)
+		return tryCBF(funcOf(f).call(t.v))
 	}
 
 	return t
@@ -118,8 +117,7 @@ func (t *traitTry) Map(f interface{}) Try {
 
 func (t *traitTry) FlatMap(f interface{}) Try {
 	if t.ok {
-		return t._flatMap(f).(Try)
-
+		return funcOf(f).call(t.v).Interface().(Try)
 	}
 	return t
 }
@@ -145,14 +143,7 @@ func (t *traitTry) ToOption() Option {
 		return None
 	}
 
-	return OptionOf(t.container)
-}
-
-func tryFromContainer(c container, ok bool) Try {
-	return &traitTry{
-		ok:        ok,
-		container: c,
-	}
+	return OptionOf(t.Get())
 }
 
 /*func tryFromX(x interface{}) Try {
@@ -160,14 +151,14 @@ func tryFromContainer(c container, ok bool) Try {
 }*/
 
 // isErrorOrFalse checks x is an existing error or false.
-func isErrorOrFalse(x interface{}) bool {
+func isErrorOrFalse(x interface{}) (bool, bool) {
 	switch v := x.(type) {
 	case error:
-		return v != nil
+		return v != nil, true
 	case bool:
-		return !v
+		return !v, true
 	default:
-		return false
+		return false, x == nil
 	}
 }
 
@@ -175,68 +166,80 @@ func isErrorOrFalse(x interface{}) bool {
 
 // FailureOf returns Failure of x if x is error or false, or returns Success of x.
 func FailureOf(x interface{}) Try {
-	return tryFromContainer(containerOf(x), false)
+	return tryCBF(x)
 }
 
 // ----------------------------------------------------------------------------
 
 // SuccessOf returns Success of x.
-func SuccessOf(x interface{}) Try {
-	return tryFromContainer(containerOf(x), true)
+func SuccessOf(x ...interface{}) Try {
+	return tryCBF(x...)
 }
 
-func tryFromX(x interface{}) Try {
+var successNull = &traitTry{ok: true, v: nullValue}
+var successUnit = &traitTry{ok: true, v: unitValue}
 
-	switch v := x.(type) {
-	case Try:
-		return v
-	case bool:
-		if v {
-			return SuccessOf(v)
-		}
-		return FailureOf(v)
-	case error:
-		if v != nil {
-			return FailureOf(v)
-		}
-		return SuccessOf(nil)
-	case Tuple:
-		switch v.Dimension() {
-		case 2:
-			return try1Of(v.V(0), v.V(1))
-		case 3:
-			return try2Of(v.V(0), v.V(1), v.V(2))
-		default:
-			return tryNOf(v)
-		}
-	default:
-		return SuccessOf(x)
+func newTraitTry(ok bool, x interface{}) Try {
+	return &traitTry{
+		ok: ok,
+		v:  reflect.ValueOf(x),
+	}
+}
+func tryCBF(x ...interface{}) (ret Try) {
+	len := len(x)
+
+	if len == 0 {
+		return successUnit
 	}
 
+	switch len {
+	case 1:
+		switch v := x[0].(type) {
+		case Try:
+			return v
+		case reflect.Value:
+			return tryCBF(v.Interface())
+		case bool:
+			return newTraitTry(v, v)
+		case error:
+			if v != nil {
+				return newTraitTry(false, v)
+			}
+			return successNull
+		case Tuple:
+			return tryNOf(v)
+		default:
+			if v == nil {
+				return successNull
+			}
+
+			if reflect.TypeOf(v).Kind() == reflect.Func {
+				defer func() {
+					if r := recover(); r != nil {
+						ret = newTraitTry(false, reflect.ValueOf(fmt.Errorf("%v", r)))
+
+					}
+				}()
+
+				return tryCBF(funcOf(v).call(unitValue).Interface())
+			}
+			return newTraitTry(true, v)
+		}
+	case 2:
+		return try1Of(x[0], x[1])
+	case 3:
+		return try2Of(x[0], x[1], x[2])
+	default:
+		return tryNOf(TupleOf(x))
+	}
 }
 
 // TryOf returns a Try.
 // The last argument must be bool or error type.
 // Return Failure if errOrFalse is false or error existing,
 // or Success of Null.
-func TryOf(x ...interface{}) Try {
-	switch len(x) {
-	case 0:
-		return SuccessOf(unit)
-	case 1:
-		if isErrorOrFalse(x[0]) {
-			return FailureOf(x[0])
-		}
-		return SuccessOf(x[0])
-	case 2:
-		return try1Of(x[0], x[1])
-	case 3:
-		return try2Of(x[0], x[1], x[2])
-	default:
-		t := TupleOf(x)
-		return tryNOf(t)
-	}
-
+func TryOf(x ...interface{}) (ret Try) {
+	return tryCBF(x...)
 }
 
 // try1Of returns a Try.
@@ -244,11 +247,19 @@ func TryOf(x ...interface{}) Try {
 // Return Failure if errOrFalse is false or error existing,
 // or Success of x.
 func try1Of(x, errOrFalse interface{}) Try {
-	if isErrorOrFalse(errOrFalse) {
-		return FailureOf(errOrFalse)
+	yes, reduce := isErrorOrFalse(errOrFalse)
+	if yes {
+		return newTraitTry(false, errOrFalse)
 	}
 
-	return SuccessOf(x)
+	if reduce {
+		if x == nil {
+			return successNull
+		}
+		return newTraitTry(true, x)
+	}
+
+	return newTraitTry(true, Tuple2Of(x, errOrFalse))
 }
 
 // try2Of returns a Try.
@@ -256,17 +267,35 @@ func try1Of(x, errOrFalse interface{}) Try {
 // Return Failure if errOrFalse is false or error existing,
 // or Success of Tuple2(x1,x2).
 func try2Of(x1, x2, errOrFalse interface{}) Try {
-	if isErrorOrFalse(errOrFalse) {
-		return FailureOf(errOrFalse)
+	yes, reduce := isErrorOrFalse(errOrFalse)
+	if yes {
+		return newTraitTry(false, errOrFalse)
 	}
 
-	return SuccessOf(Tuple2Of(x1, x2))
+	if reduce {
+		return newTraitTry(true, Tuple2Of(x1, x2))
+	}
+
+	return newTraitTry(true, Tuple3Of(x1, x2, errOrFalse))
 }
 
 func tryNOf(t Tuple) Try {
 	last := t.V(t.Dimension() - 1)
-	if isErrorOrFalse(last) {
-		return FailureOf(last)
+	yes, reduce := isErrorOrFalse(last)
+	if yes {
+		return newTraitTry(false, last)
 	}
-	return SuccessOf(t.reduce())
+
+	if !reduce {
+		return newTraitTry(true, t)
+	}
+
+	if t.Dimension() == 2 {
+		if t.V(0) == nil {
+			return successNull
+		}
+		return newTraitTry(true, t.V(0))
+	}
+
+	return newTraitTry(true, t.reduce())
 }
