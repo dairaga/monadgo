@@ -216,7 +216,7 @@ func tryCBF(x ...interface{}) (ret Try) {
 			if reflect.TypeOf(v).Kind() == reflect.Func {
 				defer func() {
 					if r := recover(); r != nil {
-						ret = newTraitTry(false, reflect.ValueOf(fmt.Errorf("%v", r)))
+						ret = newTraitTry(false, fmt.Errorf("%v", r))
 
 					}
 				}()

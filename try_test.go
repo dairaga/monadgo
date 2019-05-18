@@ -17,6 +17,19 @@ func ExampleTryOf() {
 	printGet(t)
 	printGet(t.Get())
 
+	t = TryOf(func() int {
+		return 10
+	})
+	printGet(t)
+	printGet(t.Get())
+
+	t = TryOf(func() int {
+		a := 0
+		return 10 / a
+	})
+	printGet(t)
+	printGet(t.Get())
+
 	// Output:
 	// true
 	// false
@@ -26,6 +39,10 @@ func ExampleTryOf() {
 	// true
 	// Failure(error), *monadgo.traitTry
 	// error, *errors.errorString
+	// Success(10), *monadgo.traitTry
+	// 10, int
+	// Failure(runtime error: integer divide by zero), *monadgo.traitTry
+	// runtime error: integer divide by zero, *errors.errorString
 }
 
 func ExampleTry1Of() {
