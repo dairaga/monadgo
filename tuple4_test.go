@@ -4,17 +4,17 @@ func ExampleTuple4() {
 	t := Tuple4Of(1, "2", float64(3.14), complex(5, 7))
 
 	printGet(t)
-	printGet(t.V1())
-	printGet(t.V(0))
+	printGet(t.V1().(int))
+	printGet(t.V(0).(int))
 
-	printGet(t.V2())
-	printGet(t.V(1))
+	printGet(t.V2().(string))
+	printGet(t.V(1).(string))
 
-	printGet(t.V3())
-	printGet(t.V(2))
+	printGet(t.V3().(float64))
+	printGet(t.V(2).(float64))
 
-	printGet(t.V4())
-	printGet(t.V(3))
+	printGet(t.V4().(complex128))
+	printGet(t.V(3).(complex128))
 
 	printGet(t.T1())
 	printGet(t.T(0))

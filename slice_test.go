@@ -7,7 +7,7 @@ import (
 func ExampleSliceOf() {
 	s := SliceOf([]int{1, 2, 3, 4, 5})
 	fmt.Println(s)
-	printGet(s.Get())
+	printGet(s.Get().([]int))
 	fmt.Println(s.Len())
 	fmt.Println(s.Cap())
 
@@ -101,14 +101,14 @@ func ExampleSlice_Map() {
 	})
 
 	fmt.Println(s2)
-	fmt.Printf("%v, %T\n", s2.Get(), s2.Get())
+	printGet(s2.Get().([]string))
 
 	s2 = s1.Map(func(k, v int) (string, int) {
 		return fmt.Sprintf("%d", k+v), k * v
 	})
 
 	fmt.Println(s2)
-	fmt.Printf("%v, %T\n", s2.Get(), s2.Get())
+	printGet(s2.Get().([]Pair))
 
 	// Output:
 	// [(1,11) (2,22) (1,111) (2,222)]
@@ -128,7 +128,7 @@ func ExampleSlice_FlatMap() {
 		return []int{p.Key().(int), p.Value().(int)}
 	})
 	fmt.Println(s2)
-	printGet(s2.Get())
+	printGet(s2.Get().([]int))
 
 	s2 = s1.FlatMap(func(p Pair) map[int]int {
 		return map[int]int{
@@ -136,7 +136,7 @@ func ExampleSlice_FlatMap() {
 		}
 	})
 	fmt.Println(s2)
-	printGet(s2.Get())
+	printGet(s2.Get().([]Pair))
 
 	SliceOf([]int{1, 2, 3}).FlatMap(func(x int) {
 		SliceOf([]int{1, 2, 3}).Map(func(y int) {
