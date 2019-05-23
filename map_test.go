@@ -33,7 +33,7 @@ func ExampleMapOf() {
 	// map[a:11 b:22], map[string]int
 }
 
-func ExampleMap_Foreach() {
+func ExampleMapForeach() {
 	MapOf(map[string]int{
 		"a": 11,
 		"b": 22,
